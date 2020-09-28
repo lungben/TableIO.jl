@@ -1,65 +1,3 @@
-# definition of file formats and extensions
-
-abstract type AbstractFormat end
-
-struct CSVFormat <: AbstractFormat end
-struct ZippedCSVFormat <: AbstractFormat end
-struct JDFFormat <: AbstractFormat end
-struct ParquetFormat <: AbstractFormat end
-struct ExcelFormat <: AbstractFormat end
-
-const FILE_EXTENSIONS = Dict(
-    "zip" => ZippedCSVFormat,
-    "csv" => CSVFormat,
-    "jdf" => JDFFormat,
-    "parquet" => ParquetFormat,
-    "xlsx" => ExcelFormat,
-)
-
-_get_file_extension(filename) = lowercase(splitext(filename)[2][2:end])
-_get_file_type(filename) = FILE_EXTENSIONS[_get_file_extension(filename)]
-
-# dispatching on file extensions
-
-"""
-    read_table(filename:: AbstractString; kwargs...)
-
-`filename`: path and filename of the input file
-`kwargs...`: keyword arguments passed to the underlying file reading function (e.g. `CSV.File`)
-
-Returns a Tables.jl interface compatible object.
-
-Example:
-
-    df = read_table("my_data.csv") |> DataFrame!
-
-
-"""
-function read_table(filename:: AbstractString, args...; kwargs...)
-    data_type = _get_file_type(filename)()
-    read_table(data_type, filename, args...; kwargs...)
-end
-
-
-"""
-    write_table(filename:: AbstractString, table; kwargs...):: AbstractString
-
-`filename`: path and filename of the output file
-`table`: a Tables.jl compatible object (e.g. a DataFrame) for storage
-`kwargs...`: keyword arguments passed to the underlying file writing function (e.g. `CSV.write`)
-
-Returns `filename`.
-
-Example:
-
-    write_table("my_output.csv", df)
-
-"""
-function write_table(filename:: AbstractString, table, args...; kwargs...):: AbstractString
-    data_type = _get_file_type(filename)()
-    write_table(data_type, filename, table, args...; kwargs...)
-end
-
 # CSV Format
 
 using CSV
@@ -75,6 +13,7 @@ function write_table(::CSVFormat, filename:: AbstractString, table; kwargs...)
 end
 
 # Zipped CSV Format
+# see https://juliadata.github.io/CSV.jl/stable/#Reading-CSV-from-gzip-(.gz)-and-zip-files-1
 
 using ZipFile, CSV
 
@@ -185,11 +124,12 @@ end
 
 function write_table(::ExcelFormat, filename:: AbstractString, sheetname:: AbstractString, table:: DataFrame; kwargs...)
     _checktable(table)
-    XLSX.writetable(filename, table, overwrite=true, sheetname=sheetname, anchor_cell="A1")
+    XLSX.writetable(filename, table; overwrite=true, sheetname=sheetname, kwargs...)
     return filename
 end
 
-write_table(::ExcelFormat, filename:: AbstractString, table; kwargs...) = write_table(ExcelFormat(), filename, "sheet_1", table; kwargs...)
+const DEFAULT_SHEETNAME = "sheet_1"
+write_table(::ExcelFormat, filename:: AbstractString, table; kwargs...) = write_table(ExcelFormat(), filename, DEFAULT_SHEETNAME, table; kwargs...)
 
 # XLSX supports only DataFrames, not arbitrary Tables.jl inputs. For export, the table is converted to a DataFrame first.
 write_table(::ExcelFormat, filename:: AbstractString, sheetname:: AbstractString, table; kwargs...) = write_table(ExcelFormat(), filename:: AbstractString, sheetname:: AbstractString, DataFrame(table); kwargs...)
