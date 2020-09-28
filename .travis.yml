@@ -16,3 +16,6 @@ before_install:
 julia:
   - nightly
   - 1.5
+
+allow_failures:
+  - julia: nightly
