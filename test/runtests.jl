@@ -1,6 +1,45 @@
 using TableIO
 using Test
+using DataFrames
 
 @testset "TableIO.jl" begin
-    # Write your tests here.
+    testpath = mktempdir()
+    println("Temporary directory for test files: ", testpath)
+
+    # defining Tables.jl compatible test data
+    df = DataFrame(a=1:10, b=rand(10), c="hello".* string.(1:10))
+    nt = [(a=1, b=0.5, c="hello"), (a=2, b=0.9, c="world"), (a=3, b=5.5, c="!")]
+
+    # CSV
+    fname = joinpath(testpath, "test.csv")
+    write_table(fname, df)
+    df_recovered = read_table(fname) |> DataFrame!
+    @test df == df_recovered
+    fname = joinpath(testpath, "test2.csv")
+    write_table(fname, nt)
+    nt_recovered = read_table(fname)
+    @test size(nt) == size(nt_recovered)
+    @test DataFrame(nt) == DataFrame(nt_recovered)
+
+    # zipped CSV
+    fname = joinpath(testpath, "test.zip")
+    write_table(fname, df)
+    df_recovered = read_table(fname) |> DataFrame!
+    @test df == df_recovered
+    fname = joinpath(testpath, "test2.zip")
+    write_table(fname, nt)
+    nt_recovered = read_table(fname)
+    @test size(nt) == size(nt_recovered)
+    @test DataFrame(nt) == DataFrame(nt_recovered)
+
+    # JDF
+    fname = joinpath(testpath, "test.jdf")
+    write_table(fname, df)
+    df_recovered = read_table(fname) |> DataFrame!
+    @test df == df_recovered
+    fname = joinpath(testpath, "test2.jdf")
+    write_table(fname, nt)
+    nt_recovered = read_table(fname)
+    @test DataFrame(nt) == nt_recovered # is already a DataFrame for JDF
+
 end
