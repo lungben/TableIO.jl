@@ -3,6 +3,7 @@ using Test
 using DataFrames
 using Parquet
 using SQLite
+using LibPQ
 
 @testset "TableIO.jl" begin
     testpath = mktempdir()
@@ -75,11 +76,36 @@ using SQLite
         write_table(db, "test1", df)
         df_recovered = read_table(fname, "test1") |> DataFrame!
         @test df == df_recovered
- 
         write_table(fname, "test2", nt)
         nt_recovered = read_table(db, "test2")
         @test DataFrame(nt) == DataFrame(nt_recovered)
-    
+
+        # PostgreSQL
+        # the following tests require a running PostgreSQL database.
+        # `docker run --rm --detach --name test-libpqjl -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 postgres`
+        conn = LibPQ.Connection("dbname=postgres user=postgres")
+
+        execute(conn, """CREATE TEMPORARY TABLE test1 (
+            a integer PRIMARY KEY,
+            b numeric,
+            c character varying
+            );""")
+        write_table(conn, "test1", df)
+        df_recovered = read_table(conn, "test1") |> DataFrame!
+        execute(conn, "DROP TABLE test1;")
+        @test df == df_recovered
+
+        execute(conn, """CREATE TEMPORARY TABLE test2 (
+            a integer PRIMARY KEY,
+            b numeric,
+            c character varying
+            );""")
+        write_table(conn, "test2", nt)
+        nt_recovered = read_table(conn, "test2")
+        execute(conn, "DROP TABLE test2;")
+        @test DataFrame(nt) == DataFrame(nt_recovered)
+
+        close(conn)
     end
 
 end
