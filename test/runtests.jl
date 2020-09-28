@@ -28,7 +28,7 @@ using Parquet
     @test df == df_recovered
     fname = joinpath(testpath, "test2.zip")
     write_table(fname, nt)
-    nt_recovered = read_table(fname)
+    nt_recovered = read_table(fname, "test2.csv")
     @test DataFrame(nt) == DataFrame(nt_recovered)
 
     # JDF

@@ -33,9 +33,9 @@ Example:
 
 
 """
-function read_table(filename:: AbstractString; kwargs...)
+function read_table(filename:: AbstractString, args...; kwargs...)
     data_type = _get_file_type(filename)()
-    read_table(data_type, filename; kwargs...)
+    read_table(data_type, filename, args...; kwargs...)
 end
 
 
@@ -53,9 +53,9 @@ Example:
     write_table("my_output.csv", df)
 
 """
-function write_table(filename:: AbstractString, table; kwargs...):: AbstractString
+function write_table(filename:: AbstractString, table, args...; kwargs...):: AbstractString
     data_type = _get_file_type(filename)()
-    write_table(data_type, filename, table; kwargs...)
+    write_table(data_type, filename, table, args...; kwargs...)
 end
 
 # CSV Format
@@ -76,6 +76,10 @@ end
 
 using ZipFile, CSV
 
+
+"""
+This method assumes that there is a single csv file inside the zip file. If this is not the case, an error is raised.
+"""
 function read_table(::ZippedCSVFormat, zip_filename:: AbstractString; kwargs...)
     zf = ZipFile.Reader(zip_filename)
     length(zf.files) == 1 || error("The zip file must contain exactly one file")
@@ -83,6 +87,18 @@ function read_table(::ZippedCSVFormat, zip_filename:: AbstractString; kwargs...)
     return CSV.File(read(zf.files[1]); kwargs...)
 end
 
+"""
+This method supports multiple files inside the zip file. The name of the csv file inside the zip file must be given.
+"""
+function read_table(::ZippedCSVFormat, zip_filename:: AbstractString, csv_filename:: AbstractString; kwargs...)
+    zf = ZipFile.Reader(zip_filename)
+    file_in_zip = filter(x->x.name == csv_filename, zf.files)[1]
+    return CSV.File(read(file_in_zip); kwargs...)
+end
+
+"""
+The csv file inside the zip archive is named analogue to the zip file, but with `.csv` extension.
+"""
 function write_table(::ZippedCSVFormat, zip_filename:: AbstractString, table; kwargs...)
     _checktable(table)
     csv_filename = string(splitext(basename(zip_filename))[1], ".csv")
