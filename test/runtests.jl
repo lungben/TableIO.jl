@@ -1,6 +1,7 @@
 using TableIO
 using Test
 using DataFrames
+using Parquet
 
 @testset "TableIO.jl" begin
     testpath = mktempdir()
@@ -18,7 +19,6 @@ using DataFrames
     fname = joinpath(testpath, "test2.csv")
     write_table(fname, nt)
     nt_recovered = read_table(fname)
-    @test size(nt) == size(nt_recovered)
     @test DataFrame(nt) == DataFrame(nt_recovered)
 
     # zipped CSV
@@ -29,7 +29,6 @@ using DataFrames
     fname = joinpath(testpath, "test2.zip")
     write_table(fname, nt)
     nt_recovered = read_table(fname)
-    @test size(nt) == size(nt_recovered)
     @test DataFrame(nt) == DataFrame(nt_recovered)
 
     # JDF
@@ -41,5 +40,16 @@ using DataFrames
     write_table(fname, nt)
     nt_recovered = read_table(fname)
     @test DataFrame(nt) == nt_recovered # is already a DataFrame for JDF
+
+    # Parquet
+    fname = joinpath(testpath, "test.parquet")
+    write_table(fname, df)
+    df_recovered = read_table(fname; string_cols = ["c"]) |> DataFrame! # use convenience function for string column mapping
+    @test df == df_recovered
+    fname = joinpath(testpath, "test2.parquet")
+    write_table(fname, nt)
+    mapping = Dict(["c"] => (String, Parquet.logical_string)) # manually define the mapping of string columns
+    nt_recovered = read_table(fname; map_logical_types=mapping)
+    @test DataFrame(nt) == DataFrame(nt_recovered)
 
 end
