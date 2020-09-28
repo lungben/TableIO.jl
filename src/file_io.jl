@@ -17,7 +17,6 @@ end
 
 using ZipFile, CSV
 
-
 """
 This method assumes that there is a single csv file inside the zip file. If this is not the case, an error is raised.
 """
