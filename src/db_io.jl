@@ -1,5 +1,5 @@
 
-# poor man's approach to prevent SQL injections
+# poor man's approach to prevent SQL injections / garbage inputs
 _checktablename(tablename) = match(r"^[a-zA-Z0-9_]*$", tablename) === nothing && error("tablename must only contain alphanumeric characters and underscores")
 
 #SQLite
@@ -21,6 +21,8 @@ function read_table(db:: SQLite.DB, tablename:: AbstractString; kwargs...)
      _checktablename(tablename)
     return DBInterface.execute(db, "select * from $tablename") # SQL parameters cannot be used for table names
 end
+
+read_sql(db:: SQLite.DB, sql:: AbstractString) = DBInterface.execute(db, sql)
 
 function write_table(::SQLiteFormat, filename:: AbstractString, tablename:: AbstractString, table; kwargs...)
     _checktable(table)
@@ -56,6 +58,8 @@ function read_table(conn:: LibPQ.Connection, tablename:: AbstractString; kwargs.
     _checktablename(tablename)
    return execute(conn, "select * from $tablename") # SQL parameters cannot be used for table names
 end
+
+read_sql(conn:: LibPQ.Connection, sql:: AbstractString) = execute(conn, sql)
 
 """
     write_table(conn:: LibPQ.Connection, tablename:: AbstractString, table)

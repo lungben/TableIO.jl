@@ -1,6 +1,6 @@
 module TableIO
 
-export read_table, write_table
+export read_table, write_table, read_sql
 
 using Tables
 
@@ -22,6 +22,8 @@ const FILE_EXTENSIONS = Dict(
     "parquet" => ParquetFormat,
     "xlsx" => ExcelFormat,
     "db" => SQLiteFormat,
+    "sqlite" => SQLiteFormat,
+    "sqlite3" => SQLiteFormat,
 )
 
 _get_file_extension(filename) = lowercase(splitext(filename)[2][2:end])
@@ -67,6 +69,14 @@ function write_table(filename:: AbstractString, table, args...; kwargs...):: Abs
     data_type = _get_file_type(filename)()
     write_table(data_type, filename, table, args...; kwargs...)
 end
+
+
+"""
+    read_sql(db, sql:: AbstractString)
+
+Returns the result of the SQL query as a Tables.jl compatible object.
+"""
+function read_sql end
 
 _checktable(table) = Tables.istable(typeof(table)) || error("table has no Tables.jl compatible interface")
 
