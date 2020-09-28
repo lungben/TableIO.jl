@@ -97,7 +97,7 @@ It is possible to pass the output of `read_table` directly as input to `write_ta
     write_table(name3, read_table(name2))
     write_table(name4, "my_table", read_table(name3))
 
-    df_recovered = read_table(name3) |> DataFrame!
+    df_recovered = read_table(name4, "my_table") |> DataFrame!
 
 ## Disclaimer
 
