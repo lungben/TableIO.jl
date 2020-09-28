@@ -102,3 +102,8 @@ It is possible to pass the output of `read_table` directly as input to `write_ta
 ## Disclaimer
 
 This package is still experimental.
+
+ToDo:
+
+* Test for more data types (especially Dates) and larger data amounts.
+* Currently it is required to install all dependencies of all supported formats. This should be made more modular, so that only dependencies for the formats required by the user must be installed.
