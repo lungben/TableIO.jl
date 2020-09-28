@@ -2,10 +2,10 @@ codecov: true
 language: julia
 
 services:
-  - docker
+  - postgresql
 
-before_install:
-  - docker run --detach --name test-libpqjl -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 postgres
+before_script:
+  - psql -c 'create database postgres;' -U postgres
 
 julia:
   - nightly
