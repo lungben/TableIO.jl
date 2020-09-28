@@ -120,24 +120,43 @@ function read_table(::JDFFormat, filename:: AbstractString; kwargs...):: DataFra
 end
 
 function write_table(::JDFFormat, filename:: AbstractString, table:: DataFrame; kwargs...)
-    # JDF supports only DataFrames, not arbitrary Tables.jl inputs
     savejdf(filename, table; kwargs...)
     return filename
 end
 
+# JDF supports only DataFrames, not arbitrary Tables.jl inputs. For export, the table is converted to a DataFrame first.
 write_table(::JDFFormat, filename:: AbstractString, table; kwargs...) = write_table(JDFFormat(), filename, DataFrame(table); kwargs...)
 
 # Parquet
 
 using Parquet
 
+"""
+For strings (plus potentially additional data types), the binary representation in Parquet must be specified when reading the file.
+A general mapping can be given with the keyword argument `map_logical_types`.
+Alternatively, the string columns can be given 
+
+"""
 function read_table(::ParquetFormat, filename:: AbstractString; string_cols = [], kwargs...)
+    
     if length(string_cols) > 0
         str_mapping = Dict(string.(string_cols) => (String, Parquet.logical_string))
-        parfile = ParFile(filename; map_logical_types=str_mapping, kwargs...)
     else
-        parfile = ParFile(filename; kwargs...)
+        str_mapping = nothing
     end
+
+    if hasproperty(kwargs, :map_logical_types)
+        map_logical_types = kwargs.map_logical_types
+        if str_mapping === nothing
+            map_logical_types = kwargs.map_logical_types
+        else
+            map_logical_types = kwargs.map_logical_types ∪ str_mapping
+        end
+    else
+        map_logical_types = str_mapping
+    end
+    
+    parfile = ParFile(filename; map_logical_types=map_logical_types, kwargs...)
     return RecordCursor(parfile)
 end
 
@@ -149,7 +168,7 @@ end
 
 # Excel
 
-using XLSX
+using XLSX, DataFrames
 
 function read_table(::ExcelFormat, filename:: AbstractString, sheetname:: AbstractString; kwargs...)
     f = XLSX.readxlsx(filename)
@@ -172,4 +191,5 @@ end
 
 write_table(::ExcelFormat, filename:: AbstractString, table; kwargs...) = write_table(ExcelFormat(), filename, "sheet_1", table; kwargs...)
 
+# XLSX supports only DataFrames, not arbitrary Tables.jl inputs. For export, the table is converted to a DataFrame first.
 write_table(::ExcelFormat, filename:: AbstractString, sheetname:: AbstractString, table; kwargs...) = write_table(ExcelFormat(), filename:: AbstractString, sheetname:: AbstractString, DataFrame(table); kwargs...)
