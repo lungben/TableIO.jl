@@ -70,6 +70,29 @@ using LibPQ
             nt_recovered = read_table(fname, "sheet_1") # default name
             @test DataFrame(nt) == DataFrame(nt_recovered)
         end
+
+        @testset "conversions" begin
+            # file formats
+            name1 = joinpath(testpath, "test.zip")
+            name2 = joinpath(testpath, "testx.jdf")
+            name3 = joinpath(testpath, "testx.xlsx")
+            write_table(name2, read_table(name1))
+            write_table(name3, read_table(name2))
+            df_recovered = read_table(name3) |> DataFrame!
+            @test df == df_recovered
+
+            # SQLite from JDF
+            name4 = joinpath(testpath, "testx.db")
+            write_table(name4, "my_table", read_table(name2))
+            df_recovered = read_table(name3) |> DataFrame!
+            @test df == df_recovered
+
+            # SQLite from XLSX
+            name4 = joinpath(testpath, "testx.db")
+            write_table(name4, "my_table", read_table(name3))
+            df_recovered = read_table(name3) |> DataFrame!
+            @test df == df_recovered
+        end
     end
 
     @testset "Database IO" begin
