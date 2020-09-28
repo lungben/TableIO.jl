@@ -6,12 +6,14 @@ struct CSVFormat <: AbstractFormat end
 struct ZippedCSVFormat <: AbstractFormat end
 struct JDFFormat <: AbstractFormat end
 struct ParquetFormat <: AbstractFormat end
+struct ExcelFormat <: AbstractFormat end
 
 const FILE_EXTENSIONS = Dict(
     "zip" => ZippedCSVFormat,
     "csv" => CSVFormat,
     "jdf" => JDFFormat,
     "parquet" => ParquetFormat,
+    "xlsx" => ExcelFormat,
 )
 
 _get_file_extension(filename) = lowercase(splitext(filename)[2][2:end])
@@ -144,3 +146,30 @@ function write_table(::ParquetFormat, filename:: AbstractString, table; kwargs..
     write_parquet(filename, table; kwargs...)
     return filename
 end
+
+# Excel
+
+using XLSX
+
+function read_table(::ExcelFormat, filename:: AbstractString, sheetname:: AbstractString; kwargs...)
+    f = XLSX.readxlsx(filename)
+    sheet = f[sheetname]
+    return XLSX.eachtablerow(sheet)
+end
+
+function read_table(::ExcelFormat, filename:: AbstractString; kwargs...)
+    f = XLSX.readxlsx(filename)
+    sheet = first(f.workbook.sheets)
+    return XLSX.eachtablerow(sheet)
+end   
+
+
+function write_table(::ExcelFormat, filename:: AbstractString, sheetname:: AbstractString, table:: DataFrame; kwargs...)
+    _checktable(table)
+    XLSX.writetable(filename, table, overwrite=true, sheetname=sheetname, anchor_cell="A1")
+    return filename
+end
+
+write_table(::ExcelFormat, filename:: AbstractString, table; kwargs...) = write_table(ExcelFormat(), filename, "sheet_1", table; kwargs...)
+
+write_table(::ExcelFormat, filename:: AbstractString, sheetname:: AbstractString, table; kwargs...) = write_table(ExcelFormat(), filename:: AbstractString, sheetname:: AbstractString, DataFrame(table); kwargs...)

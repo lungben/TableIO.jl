@@ -52,4 +52,14 @@ using Parquet
     nt_recovered = read_table(fname; map_logical_types=mapping)
     @test DataFrame(nt) == DataFrame(nt_recovered)
 
+    # XLSX
+    fname = joinpath(testpath, "test.xlsx")
+    write_table(fname, "test_sheet_42", df)
+    df_recovered = read_table(fname) |> DataFrame!
+    @test df == df_recovered
+    fname = joinpath(testpath, "test2.xlsx")
+    write_table(fname, nt)
+    nt_recovered = read_table(fname, "sheet_1") # default name
+    @test DataFrame(nt) == DataFrame(nt_recovered)
+
 end
