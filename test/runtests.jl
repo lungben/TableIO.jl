@@ -10,7 +10,7 @@ using LibPQ
     println("Temporary directory for test files: ", testpath)
 
     # defining Tables.jl compatible test data
-    df = DataFrame(a=1:10, b=rand(10), c="hello".* string.(1:10))
+    df = DataFrame(a=1:10, b=rand(10), c="hello".* string.(1:10), d=Bool.((1:10) .% 2))
     nt = [(a=1, b=0.5, c="hello"), (a=2, b=0.9, c="world"), (a=3, b=5.5, c="!")]
 
     @testset "File IO" begin
@@ -121,7 +121,8 @@ using LibPQ
             execute(conn, """CREATE TEMPORARY TABLE test1 (
                 a integer PRIMARY KEY,
                 b numeric,
-                c character varying
+                c character varying,
+                d boolean
                 );""")
             write_table(conn, "test1", df)
             df_recovered = read_table(conn, "test1") |> DataFrame!
