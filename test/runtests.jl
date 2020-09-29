@@ -4,13 +4,14 @@ using DataFrames
 using Parquet
 using SQLite
 using LibPQ
+using Dates
 
 @testset "TableIO.jl" begin
     testpath = mktempdir()
     println("Temporary directory for test files: ", testpath)
 
     # defining Tables.jl compatible test data
-    df = DataFrame(a=1:10, b=rand(10), c="hello".* string.(1:10), d=Bool.((1:10) .% 2))
+    df = DataFrame(a=1:10, b=rand(10), c="hello".* string.(1:10), d=Bool.((1:10) .% 2), e=Date("2020-08-15") .+ Day.(1:10))
     nt = [(a=1, b=0.5, c="hello"), (a=2, b=0.9, c="world"), (a=3, b=5.5, c="!")]
 
     @testset "File IO" begin
@@ -49,10 +50,11 @@ using LibPQ
         end
 
         @testset "Parquet" begin
+            df_parquet = df[!, Not(:e)] # Parquet currently does not support Date element type
             fname = joinpath(testpath, "test.parquet")
-            write_table(fname, df)
+            write_table(fname, df_parquet)
             df_recovered = read_table(fname; string_cols = ["c"]) |> DataFrame! # use convenience function for string column mapping
-            @test df == df_recovered
+            @test df_parquet == df_recovered
             fname = joinpath(testpath, "test2.parquet")
             write_table(fname, nt)
             mapping = Dict(["c"] => (String, Parquet.logical_string)) # manually define the mapping of string columns
@@ -122,7 +124,8 @@ using LibPQ
                 a integer PRIMARY KEY,
                 b numeric,
                 c character varying,
-                d boolean
+                d boolean,
+                e date
                 );""")
             write_table(conn, "test1", df)
             df_recovered = read_table(conn, "test1") |> DataFrame!

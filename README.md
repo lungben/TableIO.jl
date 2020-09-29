@@ -66,7 +66,7 @@ CSV Format:
 Binary Formats:
 
     write_table("my_data.jdf", df) # JDF (compressed binary format)
-    write_table("my_data.parquet", df) # Parquet
+    write_table("my_data.parquet", df) # Parquet - note that Date element type is not supported yet
 
 Excel:
 
