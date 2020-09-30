@@ -1,4 +1,4 @@
-# CSV Format
+## CSV Format
 
 using CSV
 
@@ -12,7 +12,7 @@ function write_table(::CSVFormat, filename:: AbstractString, table; kwargs...)
     return filename
 end
 
-# Zipped CSV Format
+## Zipped CSV Format
 # see https://juliadata.github.io/CSV.jl/stable/#Reading-CSV-from-gzip-(.gz)-and-zip-files-1
 
 using ZipFile, CSV
@@ -49,7 +49,7 @@ function write_table(::ZippedCSVFormat, zip_filename:: AbstractString, table; kw
     return zip_filename
 end
 
-# JDF
+## JDF
 
 using JDF, DataFrames
 
@@ -65,7 +65,7 @@ end
 # JDF supports only DataFrames, not arbitrary Tables.jl inputs. For export, the table is converted to a DataFrame first.
 write_table(::JDFFormat, filename:: AbstractString, table; kwargs...) = write_table(JDFFormat(), filename, DataFrame(table); kwargs...)
 
-# Parquet
+## Parquet
 
 using Parquet
 
@@ -104,7 +104,7 @@ function write_table(::ParquetFormat, filename:: AbstractString, table; kwargs..
     return filename
 end
 
-# Excel
+## Excel
 
 using XLSX, DataFrames
 
@@ -132,3 +132,13 @@ write_table(::ExcelFormat, filename:: AbstractString, table; kwargs...) = write_
 
 # XLSX supports only DataFrames, not arbitrary Tables.jl inputs. For export, the table is converted to a DataFrame first.
 write_table(::ExcelFormat, filename:: AbstractString, sheetname:: AbstractString, table; kwargs...) = write_table(ExcelFormat(), filename:: AbstractString, sheetname:: AbstractString, DataFrame(table); kwargs...)
+
+## StatFiles.jl - Stata, SPSS, SAS
+
+import StatFiles
+
+const StatFilesTypes = Union{StataFormat, SPSSFormat, SASFormat} # dispatching to the concrete format is done in StatFiles.jl
+
+function read_table(::StatFilesTypes, filename:: AbstractString; kwargs...)
+    return StatFiles.load(filename; kwargs...)
+end
