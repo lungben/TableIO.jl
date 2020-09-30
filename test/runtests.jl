@@ -19,10 +19,12 @@ using Dates
         @testset "CSV" begin
             fname = joinpath(testpath, "test.csv")
             write_table(fname, df)
+            @test filesize(fname) > 0
             df_recovered = read_table(fname) |> DataFrame!
             @test df == df_recovered
             fname = joinpath(testpath, "test2.csv")
             write_table(fname, nt)
+            @test filesize(fname) > 0
             nt_recovered = read_table(fname)
             @test DataFrame(nt) == DataFrame(nt_recovered)
         end
@@ -30,10 +32,12 @@ using Dates
         @testset "zipped CSV" begin
             fname = joinpath(testpath, "test.zip")
             write_table(fname, df)
+            @test filesize(fname) > 0
             df_recovered = read_table(fname) |> DataFrame!
             @test df == df_recovered
             fname = joinpath(testpath, "test2.zip")
             write_table(fname, nt)
+            @test filesize(fname) > 0
             nt_recovered = read_table(fname, "test2.csv")
             @test DataFrame(nt) == DataFrame(nt_recovered)
         end
@@ -41,10 +45,12 @@ using Dates
         @testset "JDF" begin
             fname = joinpath(testpath, "test.jdf")
             write_table(fname, df)
+            @test isdir(fname) # JDF creates a directory, not a single file
             df_recovered = read_table(fname) |> DataFrame!
             @test df == df_recovered
             fname = joinpath(testpath, "test2.jdf")
             write_table(fname, nt)
+            @test isdir(fname) # JDF creates a directory, not a single file
             nt_recovered = read_table(fname)
             @test DataFrame(nt) == nt_recovered # is already a DataFrame for JDF
         end
@@ -53,10 +59,12 @@ using Dates
             df_parquet = df[!, Not(:e)] # Parquet currently does not support Date element type
             fname = joinpath(testpath, "test.parquet")
             write_table(fname, df_parquet)
+            @test filesize(fname) > 0
             df_recovered = read_table(fname; string_cols = ["c"]) |> DataFrame! # use convenience function for string column mapping
             @test df_parquet == df_recovered
             fname = joinpath(testpath, "test2.parquet")
             write_table(fname, nt)
+            @test filesize(fname) > 0
             mapping = Dict(["c"] => (String, Parquet.logical_string)) # manually define the mapping of string columns
             nt_recovered = read_table(fname; map_logical_types=mapping)
             @test DataFrame(nt) == DataFrame(nt_recovered)
@@ -65,10 +73,12 @@ using Dates
         @testset "XLSX" begin
             fname = joinpath(testpath, "test.xlsx")
             write_table(fname, "test_sheet_42", df)
+            @test filesize(fname) > 0
             df_recovered = read_table(fname) |> DataFrame!
             @test df == df_recovered
             fname = joinpath(testpath, "test2.xlsx")
             write_table(fname, nt)
+            @test filesize(fname) > 0
             nt_recovered = read_table(fname, "sheet_1") # default name
             @test DataFrame(nt) == DataFrame(nt_recovered)
         end
@@ -104,6 +114,7 @@ using Dates
             db = SQLite.DB(fname)
 
             write_table(db, "test1", df)
+            @test filesize(fname) > 0
             df_recovered = read_table(fname, "test1") |> DataFrame!
             @test df == df_recovered
             
