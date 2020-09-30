@@ -15,6 +15,7 @@ This package is "intelligent" in this sense that it automatically selects the ri
 * Excel (xlsx) via https://github.com/felipenoris/XLSX.jl
 * SQLite via https://github.com/JuliaDatabases/SQLite.jl
 * PostgreSQL via https://github.com/invenia/LibPQ.jl
+* Read-only: Stata (dta), SPSS (dat) and SAS (sas7bdat) via https://github.com/queryverse/StatFiles.jl
 
 ## Reading Data
 
@@ -50,6 +51,12 @@ PostgreSQL:
     postgres_conn = LibPQ.Connection("dbname=postgres user=postgres")
     df = read_table(postgres_conn, "my_table") |> DataFrame! # reading from Postgres connection
 
+StatFiles.jl integration:
+
+    df = read_table("my_data.dta") |> DataFrame! # Stata
+    df = read_table("my_data.sav") |> DataFrame! # SPSS
+    df = read_table("my_data.sas7bdat") |> DataFrame! # SAS
+
 ## Writing Data
 
 The function
@@ -83,6 +90,8 @@ PostgreSQL:
 
     postgres_conn = LibPQ.Connection("dbname=postgres user=postgres")
     write_table(postgres_conn, "my_table", df) # table must exist and be compatible with the input data
+
+StatFiles.jl integration: `write_table` is not supported.
 
 ## Conversions
 

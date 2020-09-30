@@ -14,6 +14,9 @@ struct JDFFormat <: AbstractFormat end
 struct ParquetFormat <: AbstractFormat end
 struct ExcelFormat <: AbstractFormat end
 struct SQLiteFormat <: AbstractFormat end
+struct StataFormat <: AbstractFormat end
+struct SPSSFormat <: AbstractFormat end
+struct SASFormat <: AbstractFormat end
 
 const FILE_EXTENSIONS = Dict(
     "zip" => ZippedCSVFormat,
@@ -24,6 +27,9 @@ const FILE_EXTENSIONS = Dict(
     "db" => SQLiteFormat,
     "sqlite" => SQLiteFormat,
     "sqlite3" => SQLiteFormat,
+    "dta" => StataFormat,
+    "sav" => SPSSFormat,
+    "sas7bdat" => SASFormat,
 )
 
 _get_file_extension(filename) = lowercase(splitext(filename)[2][2:end])

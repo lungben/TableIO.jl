@@ -83,6 +83,18 @@ using Dates
             @test DataFrame(nt) == DataFrame(nt_recovered)
         end
 
+        @testset "StatFiles" begin
+            # test files taken from https://github.com/queryverse/StatFiles.jl
+            df_recovered = DataFrame[]
+            for ext in ("dta", "sav", "sas7bdat")
+                fname = joinpath(@__DIR__, "types.$ext")
+                push!(df_recovered, read_table(fname) |> DataFrame!)
+            end
+            @test size(df_recovered[1]) == size(df_recovered[2]) == size(df_recovered[3]) == (3, 6)
+            @test dropmissing(df_recovered[1]) ==  dropmissing(df_recovered[2]) ==  dropmissing(df_recovered[3]) 
+
+        end
+
         @testset "conversions" begin
             # file formats
             name1 = joinpath(testpath, "test.zip")
