@@ -99,6 +99,12 @@ It is possible to pass the output of `read_table` directly as input to `write_ta
 
     df_recovered = read_table(name4, "my_table") |> DataFrame!
 
+## Testing
+
+The PostgreSQL component requires a running PostgreSQL database for unit tests. This database can be started using the following command:
+
+`docker run --rm --detach --name test-libpqjl -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 postgres`
+
 ## Disclaimer
 
 This package is still experimental.
