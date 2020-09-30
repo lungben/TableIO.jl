@@ -2,6 +2,10 @@ using TableIO
 using Test
 using DataFrames
 using Parquet
+using JDF
+using XLSX
+using StatFiles
+using ZipFile
 using SQLite
 using LibPQ
 using Dates
