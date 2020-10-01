@@ -13,7 +13,9 @@ function read_table(::ZippedCSVFormat, zip_filename:: AbstractString; kwargs...)
     zf = ZipFile.Reader(zip_filename)
     length(zf.files) == 1 || error("The zip file must contain exactly one file")
     _get_file_extension(zf.files[1].name) == "csv" || error("the zip file must contain a file with `csv` extension")
-    return CSV.File(read(zf.files[1]); kwargs...)
+    output = CSV.File(read(zf.files[1]); kwargs...)
+    close(zf)
+    return output
 end
 
 """
@@ -22,7 +24,9 @@ This method supports multiple files inside the zip file. The name of the csv fil
 function read_table(::ZippedCSVFormat, zip_filename:: AbstractString, csv_filename:: AbstractString; kwargs...)
     zf = ZipFile.Reader(zip_filename)
     file_in_zip = filter(x->x.name == csv_filename, zf.files)[1]
-    return CSV.File(read(file_in_zip); kwargs...)
+    output = CSV.File(read(file_in_zip); kwargs...)
+    close(zf)
+    return output
 end
 
 """
