@@ -56,7 +56,8 @@ Binary Formats:
     df = read_table("my_data.jdf") |> DataFrame! # JDF (compressed binary format)
 
     using Parquet
-    df = read_table("my_data.parquet", string_cols=["col_3"]) |> DataFrame! # Parquet
+    mapping = Dict(["col_3"] => (String, Parquet.logical_string)) # String field types must be mapped to appropriate data types
+    df = read_table("my_data.parquet"; map_logical_types=mapping) |> DataFrame! # Parquet
 
 Excel:
 
