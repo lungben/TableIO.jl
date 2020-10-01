@@ -2,6 +2,10 @@ using TableIO
 using Test
 using DataFrames
 using Parquet
+using JDF
+using XLSX
+using StatFiles
+using ZipFile
 using SQLite
 using LibPQ
 using Dates
@@ -11,7 +15,7 @@ using Dates
     println("Temporary directory for test files: ", testpath)
 
     # defining Tables.jl compatible test data
-    df = DataFrame(a=1:10, b=rand(10), c="hello".* string.(1:10), d=Bool.((1:10) .% 2), e=Date("2020-08-15") .+ Day.(1:10))
+    df = DataFrame(a=1:10, b=rand(10), c="hello".* string.(1:10), d=Bool.((1:10) .% 2), e=Date("2020-08-15") .+ Day.(1:10), f="world!" .* string.(1:10))
     nt = [(a=1, b=0.5, c="hello"), (a=2, b=0.9, c="world"), (a=3, b=5.5, c="!")]
 
     @testset "File IO" begin
@@ -57,15 +61,18 @@ using Dates
 
         @testset "Parquet" begin
             df_parquet = df[!, Not(:e)] # Parquet currently does not support Date element type
+
+            mapping = Dict(["c"] => (String, Parquet.logical_string), ["f"] => (String, Parquet.logical_string)) # String field types must be mapped to appropriate data types
             fname = joinpath(testpath, "test.parquet")
             write_table(fname, df_parquet)
             @test filesize(fname) > 0
-            df_recovered = read_table(fname; string_cols = ["c"]) |> DataFrame! # use convenience function for string column mapping
+            df_recovered = read_table(fname; map_logical_types=mapping) |> DataFrame!
             @test df_parquet == df_recovered
+
             fname = joinpath(testpath, "test2.parquet")
             write_table(fname, nt)
             @test filesize(fname) > 0
-            mapping = Dict(["c"] => (String, Parquet.logical_string)) # manually define the mapping of string columns
+            mapping = Dict(["c"] => (String, Parquet.logical_string))
             nt_recovered = read_table(fname; map_logical_types=mapping)
             @test DataFrame(nt) == DataFrame(nt_recovered)
         end
@@ -148,7 +155,8 @@ using Dates
                 b numeric,
                 c character varying,
                 d boolean,
-                e date
+                e date,
+                f character varying
                 );""")
             write_table(conn, "test1", df)
             df_recovered = read_table(conn, "test1") |> DataFrame!

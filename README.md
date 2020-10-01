@@ -8,7 +8,7 @@ This package is "intelligent" in this sense that it automatically selects the ri
 
 ## Supported Formats
 
-* CSV via https://github.com/JuliaData/CSV.jl
+* CSV via https://github.com/JuliaData/CSV.jl (installed as core depencency of TableIO)
 * Zipped CSV via https://github.com/fhs/ZipFile.jl
 * JDF via https://github.com/xiaodaigh/JDF.jl
 * Parquet via https://github.com/JuliaIO/Parquet.jl
@@ -16,6 +16,22 @@ This package is "intelligent" in this sense that it automatically selects the ri
 * SQLite via https://github.com/JuliaDatabases/SQLite.jl
 * PostgreSQL via https://github.com/invenia/LibPQ.jl
 * Read-only: Stata (dta), SPSS (dat) and SAS (sas7bdat) via https://github.com/queryverse/StatFiles.jl
+
+Most of the underlying packages (except CSV.jl and DataFrames.jl) are not direct dependencies of TableIO and are therefore not installed automatically with it.
+This is for reduction of installation size and package load time.
+
+## Installation
+
+    using Pkg
+    pkg"add https://github.com/lungben/TableIO.jl"
+    using TableIO
+
+Before using a specific format, the corresponding package needs to be installed and imported (not required for CSV.jl):
+
+    Pkg.add("JDF")
+    using JDF
+
+TableIO then automatically loads the corresponding wrapper code (using Requires.jl).
 
 ## Reading Data
 
@@ -25,34 +41,46 @@ The function
 
 reads a data source (file or database) and returns a Table.jl interface, e.g. for creating a DataFrame.
 
+    using TableIO, DataFrames
+
 CSV Format:
 
     df = read_table("my_data.csv") |> DataFrame! # Keyword arguments can be passed to the CSV reader (CSV.jl)
+
+    using ZipFile
     df = read_table("my_data.zip") |> DataFrame! # zipped CSV format (assuming there is only 1 file in the archive)
 
 Binary Formats:
 
+    using JDF
     df = read_table("my_data.jdf") |> DataFrame! # JDF (compressed binary format)
-    df = read_table("my_data.parquet", string_cols=["col_3"]) |> DataFrame! # Parquet
+
+    using Parquet
+    mapping = Dict(["col_3"] => (String, Parquet.logical_string)) # String field types must be mapped to appropriate data types
+    df = read_table("my_data.parquet"; map_logical_types=mapping) |> DataFrame! # Parquet
 
 Excel:
 
+    using XLSX
     df = read_table("my_data.xlsx") |> DataFrame! # imports 1st sheet
     df = read_table("my_data.xlsx", "MyAwesomeSheet") |> DataFrame! # imports named sheet
 
 SQLite:
 
+    using SQLite
     df = read_table("my_data.db", "my_table") |> DataFrame! # SQLite from file, table name must be given
     sqlite_db = SQLite.DB("my_data.db")
     df = read_table(sqlite_db, "my_table") |> DataFrame! # SQLite from database connection, table name must be given
 
 PostgreSQL:
 
+    using LibPQ
     postgres_conn = LibPQ.Connection("dbname=postgres user=postgres")
     df = read_table(postgres_conn, "my_table") |> DataFrame! # reading from Postgres connection
 
 StatFiles.jl integration:
 
+    using StatFiles
     df = read_table("my_data.dta") |> DataFrame! # Stata
     df = read_table("my_data.sav") |> DataFrame! # SPSS
     df = read_table("my_data.sas7bdat") |> DataFrame! # SAS
@@ -65,29 +93,39 @@ The function
 
 writes a Table.jl compatible data source into a file or databse.
 
+    using TableIO, DataFrames
+
 CSV Format:
 
     write_table("my_data.csv", df)
+
+    using ZipFile
     write_table("my_data.zip", df) # zipped CSV
 
 Binary Formats:
 
+    using JDF
     write_table("my_data.jdf", df) # JDF (compressed binary format)
+
+    using Parquet
     write_table("my_data.parquet", df) # Parquet - note that Date element type is not supported yet
 
 Excel:
 
+    using XLSX
     write_table("my_data.xlsx", df) # creates sheet with default name
     write_table("my_data.xlsx", "test_sheet_42", df) # creates sheet with defined name
 
 SQLite:
 
-     write_table("my_data.db", "my_table", df) # SQLite from file, table must not exist
-     sqlite_db = SQLite.DB("my_data.db")
-     write_table(sqlite_db, "my_table", df) # SQLite from database connection
+    using SQLite
+    write_table("my_data.db", "my_table", df) # SQLite from file, table must not exist
+    sqlite_db = SQLite.DB("my_data.db")
+    write_table(sqlite_db, "my_table", df) # SQLite from database connection
 
 PostgreSQL:
 
+    using LibPQ
     postgres_conn = LibPQ.Connection("dbname=postgres user=postgres")
     write_table(postgres_conn, "my_table", df) # table must exist and be compatible with the input data
 
@@ -96,6 +134,8 @@ StatFiles.jl integration: `write_table` is not supported.
 ## Conversions
 
 It is possible to pass the output of `read_table` directly as input to `write_table` for converting tabular data between different formats:
+
+    using ZipFiles, JDF, XLSX, SQLite
 
     name1 = joinpath(testpath, "test.zip") # zipped CSV
     name2 = joinpath(testpath, "testx.jdf") # binary
@@ -117,8 +157,3 @@ The PostgreSQL component requires a running PostgreSQL database for unit tests. 
 ## Disclaimer
 
 This package is still experimental.
-
-ToDo:
-
-* Test for more data types (especially Dates) and larger data amounts.
-* Currently it is required to install all dependencies of all supported formats. This should be made more modular, so that only dependencies for the formats required by the user must be installed.
