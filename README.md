@@ -10,6 +10,7 @@ This package is "intelligent" in this sense that it automatically selects the ri
 
 * CSV via https://github.com/JuliaData/CSV.jl (installed as core depencency of TableIO)
 * Zipped CSV via https://github.com/fhs/ZipFile.jl
+* JSON via https://github.com/JuliaData/JSONTables.jl
 * JDF via https://github.com/xiaodaigh/JDF.jl
 * Parquet via https://github.com/JuliaIO/Parquet.jl
 * Excel (xlsx) via https://github.com/felipenoris/XLSX.jl
@@ -49,6 +50,12 @@ CSV Format:
 
     using ZipFile
     df = read_table("my_data.zip") |> DataFrame! # zipped CSV format (assuming there is only 1 file in the archive)
+
+JSON Format:
+
+    using JSONTables, Dates
+    df = read_table("my_data.json") |> DataFrame # note that |> DataFrame! gives wrong column types!
+    df.my_date_col = Dates.(df.my_date_col) # Dates are imported as strings by default, need to be manually converted
 
 Binary Formats:
 
@@ -101,6 +108,13 @@ CSV Format:
 
     using ZipFile
     write_table("my_data.zip", df) # zipped CSV
+
+JSON Format:
+
+    using JSONTables
+    write_table("my_data.zip", df) # dictionary of arrays
+    write_table("my_data.zip", df, orientation=:objecttable) # dictionary of arrays
+    write_table("my_data.zip", df, orientation=:arraytable) # array of dictionaries
 
 Binary Formats:
 

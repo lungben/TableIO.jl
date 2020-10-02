@@ -1,6 +1,8 @@
 using TableIO
 using Test
 using DataFrames
+using Dates
+
 using Parquet
 using JDF
 using XLSX
@@ -8,7 +10,8 @@ using StatFiles
 using ZipFile
 using SQLite
 using LibPQ
-using Dates
+using JSONTables
+
 
 @testset "TableIO.jl" begin
     testpath = mktempdir()
@@ -88,6 +91,30 @@ using Dates
             @test filesize(fname) > 0
             nt_recovered = read_table(fname, "sheet_1") # default name
             @test DataFrame(nt) == DataFrame(nt_recovered)
+        end
+
+        @testset "JSON" begin
+            fname = joinpath(testpath, "test_obj.json")
+            write_table(fname, df, orientation=:objecttable)
+            @test filesize(fname) > 0
+            df_recovered = read_table(fname) |> DataFrame # note that |> DataFrame! gives wrong column types!
+            df_recovered.e = Date.(df_recovered.e) # Date format is not automatically detected, need to be converted manually
+            @test df == df_recovered
+
+            fname = joinpath(testpath, "test_array.json")
+            write_table(fname, df, orientation=:arraytable)
+            @test filesize(fname) > 0
+            df_recovered = read_table(fname) |> DataFrame # note that |> DataFrame! gives wrong column types!
+            df_recovered.e = Date.(df_recovered.e) # Date format is not automatically detected, need to be converted manually
+            @test df == df_recovered
+
+            fname = joinpath(testpath, "test2.json")
+            write_table(fname, nt)
+            @test filesize(fname) > 0
+            nt_recovered = read_table(fname) # default name
+            @test DataFrame(nt) == DataFrame(nt_recovered)
+
+            @test_throws ErrorException write_table(fname, df, orientation=:xyz)
         end
 
         @testset "StatFiles" begin
