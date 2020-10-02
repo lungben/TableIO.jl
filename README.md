@@ -112,9 +112,9 @@ CSV Format:
 JSON Format:
 
     using JSONTables
-    write_table("my_data.zip", df) # dictionary of arrays
-    write_table("my_data.zip", df, orientation=:objecttable) # dictionary of arrays
-    write_table("my_data.zip", df, orientation=:arraytable) # array of dictionaries
+    write_table("my_data.json", df) # dictionary of arrays
+    write_table("my_data.json", df, orientation=:objecttable) # dictionary of arrays
+    write_table("my_data.json", df, orientation=:arraytable) # array of dictionaries
 
 Binary Formats:
 
