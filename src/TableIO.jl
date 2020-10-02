@@ -1,6 +1,6 @@
 module TableIO
 
-export read_table, write_table, read_sql
+export read_table, write_table!, read_sql
 
 using Tables, Requires
 using CSV, DataFrames # required for multiple file types, therefore currently not optional
@@ -10,7 +10,7 @@ using CSV, DataFrames # required for multiple file types, therefore currently no
 abstract type AbstractFormat end
 
 struct CSVFormat <: AbstractFormat end
-struct ZippedCSVFormat <: AbstractFormat end
+struct ZippedFormat <: AbstractFormat end
 struct JDFFormat <: AbstractFormat end
 struct ParquetFormat <: AbstractFormat end
 struct ExcelFormat <: AbstractFormat end
@@ -21,7 +21,7 @@ struct SASFormat <: AbstractFormat end
 struct JSONFormat <: AbstractFormat end
 
 const FILE_EXTENSIONS = Dict(
-    "zip" => ZippedCSVFormat,
+    "zip" => ZippedFormat,
     "csv" => CSVFormat,
     "jdf" => JDFFormat,
     "parquet" => ParquetFormat,
@@ -58,22 +58,21 @@ end
 
 
 """
-    write_table(filename:: AbstractString, table; kwargs...):: AbstractString
+    write_table!(filename:: AbstractString, table; kwargs...):: AbstractString
 
 `filename`: path and filename of the output file
 `table`: a Tables.jl compatible object (e.g. a DataFrame) for storage
 `kwargs...`: keyword arguments passed to the underlying file writing function (e.g. `CSV.write`)
 
-Returns `filename`.
-
 Example:
 
-    write_table("my_output.csv", df)
+    write_table!("my_output.csv", df)
 
 """
-function write_table(filename:: AbstractString, table, args...; kwargs...):: AbstractString
+function write_table!(filename:: AbstractString, table, args...; kwargs...)
     data_type = _get_file_type(filename)()
-    write_table(data_type, filename, table, args...; kwargs...)
+    write_table!(data_type, filename, table, args...; kwargs...)
+    nothing
 end
 
 
@@ -86,21 +85,20 @@ function read_sql end
 
 ## CSV - always supported because CSV.jl is required for multiple other file formats, too
 
-function read_table(::CSVFormat, filename:: AbstractString; kwargs...)
-    return CSV.File(filename; kwargs...)
-end
+read_table(::CSVFormat, filename:: AbstractString; kwargs...) = CSV.File(filename; kwargs...)
+read_table(::CSVFormat, io:: IO; kwargs...) = CSV.File(read(io); kwargs...)
 
-function write_table(::CSVFormat, filename:: AbstractString, table; kwargs...)
+function write_table!(::CSVFormat, output:: Union{AbstractString, IO}, table; kwargs...)
     _checktable(table)
-    table |> CSV.write(filename; kwargs...)
-    return filename
+    table |> CSV.write(output; kwargs...)
+    nothing
 end
 
 
 ## conditional dependencies
 
 function __init__()
-    @require ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea" include("zipped_csv.jl")
+    @require ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea" include("zip.jl")
     @require JDF = "babc3d20-cd49-4f60-a736-a8f9c08892d3" include("jdf.jl")
     @require Parquet = "626c502c-15b0-58ad-a749-f091afb673ae" include("parquet.jl")
     @require XLSX = "fdbf4ff8-1666-58a4-91e7-1b58723a45e0" include("xlsx.jl")

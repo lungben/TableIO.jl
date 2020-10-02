@@ -29,7 +29,7 @@ than (often "throw-away") SQLite databases.
 
 This method is using `COPY FROM STDIN` on CSV data, which is much faster than uploading using SQL statements.
 """
-function write_table(conn:: LibPQ.Connection, tablename:: AbstractString, table; kwargs...)
+function write_table!(conn:: LibPQ.Connection, tablename:: AbstractString, table; kwargs...)
     # Uploading data to P
     _checktable(table)
     _checktablename(tablename)
@@ -37,5 +37,5 @@ function write_table(conn:: LibPQ.Connection, tablename:: AbstractString, table;
     column_names = first(iter)
     copyin = LibPQ.CopyIn("COPY $tablename ($column_names) FROM STDIN (FORMAT CSV, HEADER);", iter)
     execute(conn, copyin)
-    return tablename
+    nothing
 end

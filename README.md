@@ -9,8 +9,8 @@ This package is "intelligent" in this sense that it automatically selects the ri
 ## Supported Formats
 
 * CSV via https://github.com/JuliaData/CSV.jl (installed as core depencency of TableIO)
-* Zipped CSV via https://github.com/fhs/ZipFile.jl
 * JSON via https://github.com/JuliaData/JSONTables.jl
+* Zipped CSV or JSON via https://github.com/fhs/ZipFile.jl
 * JDF via https://github.com/xiaodaigh/JDF.jl
 * Parquet via https://github.com/JuliaIO/Parquet.jl
 * Excel (xlsx) via https://github.com/felipenoris/XLSX.jl
@@ -57,6 +57,9 @@ JSON Format:
     df = read_table("my_data.json") |> DataFrame # note that |> DataFrame! gives wrong column types!
     df.my_date_col = Dates.(df.my_date_col) # Dates are imported as strings by default, need to be manually converted
 
+    using ZipFile
+    df = read_table("my_data.zip", "my_data.json") |> DataFrame
+
 Binary Formats:
 
     using JDF
@@ -96,7 +99,7 @@ StatFiles.jl integration:
 
 The function
 
-    write_table
+    write_table!
 
 writes a Table.jl compatible data source into a file or databse.
 
@@ -104,50 +107,53 @@ writes a Table.jl compatible data source into a file or databse.
 
 CSV Format:
 
-    write_table("my_data.csv", df)
+    write_table!("my_data.csv", df)
 
     using ZipFile
-    write_table("my_data.zip", df) # zipped CSV
+    write_table!("my_data.zip", df) # zipped CSV. If no "inner" file name is given, the table is always stored in csv format with the same file name as the zip archive
 
 JSON Format:
 
     using JSONTables
-    write_table("my_data.json", df) # dictionary of arrays
-    write_table("my_data.json", df, orientation=:objecttable) # dictionary of arrays
-    write_table("my_data.json", df, orientation=:arraytable) # array of dictionaries
+    write_table!("my_data.json", df) # dictionary of arrays
+    write_table!("my_data.json", df, orientation=:objecttable) # dictionary of arrays
+    write_table!("my_data.json", df, orientation=:arraytable) # array of dictionaries
+
+    using ZipFile
+    write_table!("my_data.zip", "my_data.json", df) # need to explicitly give a file name inside zip archive, otherwise csv format is used
 
 Binary Formats:
 
     using JDF
-    write_table("my_data.jdf", df) # JDF (compressed binary format)
+    write_table!("my_data.jdf", df) # JDF (compressed binary format)
 
     using Parquet
-    write_table("my_data.parquet", df) # Parquet - note that Date element type is not supported yet
+    write_table!("my_data.parquet", df) # Parquet - note that Date element type is not supported yet
 
 Excel:
 
     using XLSX
-    write_table("my_data.xlsx", df) # creates sheet with default name
-    write_table("my_data.xlsx", "test_sheet_42", df) # creates sheet with defined name
+    write_table!("my_data.xlsx", df) # creates sheet with default name
+    write_table!("my_data.xlsx", "test_sheet_42", df) # creates sheet with defined name
 
 SQLite:
 
     using SQLite
-    write_table("my_data.db", "my_table", df) # SQLite from file, table must not exist
+    write_table!("my_data.db", "my_table", df) # SQLite from file, table must not exist
     sqlite_db = SQLite.DB("my_data.db")
-    write_table(sqlite_db, "my_table", df) # SQLite from database connection
+    write_table!(sqlite_db, "my_table", df) # SQLite from database connection
 
 PostgreSQL:
 
     using LibPQ
     postgres_conn = LibPQ.Connection("dbname=postgres user=postgres")
-    write_table(postgres_conn, "my_table", df) # table must exist and be compatible with the input data
+    write_table!(postgres_conn, "my_table", df) # table must exist and be compatible with the input data
 
-StatFiles.jl integration: `write_table` is not supported.
+StatFiles.jl integration: `write_table!` is not supported.
 
 ## Conversions
 
-It is possible to pass the output of `read_table` directly as input to `write_table` for converting tabular data between different formats:
+It is possible to pass the output of `read_table` directly as input to `write_table!` for converting tabular data between different formats:
 
     using ZipFiles, JDF, XLSX, SQLite
 
@@ -156,9 +162,9 @@ It is possible to pass the output of `read_table` directly as input to `write_ta
     name3 = joinpath(testpath, "testx.xlsx") # Excel
     name4 = joinpath(testpath, "testx.db") # SQLite
 
-    write_table(name2, read_table(name1))
-    write_table(name3, read_table(name2))
-    write_table(name4, "my_table", read_table(name3))
+    write_table!(name2, read_table(name1))
+    write_table!(name3, read_table(name2))
+    write_table!(name4, "my_table", read_table(name3))
 
     df_recovered = read_table(name4, "my_table") |> DataFrame!
 

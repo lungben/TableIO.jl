@@ -10,13 +10,13 @@ A general mapping can be given with the keyword argument `map_logical_types`.
 Alternatively, the string columns can be given 
 
 """
-function read_table(::ParquetFormat, filename:: AbstractString; kwargs...)
+function read_table(::ParquetFormat, filename; kwargs...)
     parfile = ParFile(filename; kwargs...)
     return RecordCursor(parfile)
 end
 
-function write_table(::ParquetFormat, filename:: AbstractString, table; kwargs...)
+function write_table!(::ParquetFormat, filename, table; kwargs...)
     _checktable(table)
     write_parquet(filename, table; kwargs...)
-    return filename
+    nothing
 end
