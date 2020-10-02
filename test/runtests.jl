@@ -36,27 +36,6 @@ using JSONTables
             @test DataFrame(nt) == DataFrame(nt_recovered)
         end
 
-        @testset "zipped" begin
-            fname = joinpath(testpath, "test.zip")
-            write_table!(fname, df)
-            @test filesize(fname) > 0
-            df_recovered = read_table(fname) |> DataFrame!
-            @test df == df_recovered
-            fname = joinpath(testpath, "test2.zip")
-            write_table!(fname, nt)
-            @test filesize(fname) > 0
-            nt_recovered = read_table(fname, "test2.csv")
-            @test DataFrame(nt) == DataFrame(nt_recovered)
-
-            fname = joinpath(testpath, "test_json.zip")
-            write_table!(fname, "test.json", df)
-            @test filesize(fname) > 0
-            df_recovered = read_table(fname) |> DataFrame # note that |> DataFrame! gives wrong column types!
-            df_recovered.e = Date.(df_recovered.e) # Date format is not automatically detected, need to be converted manually
-            @test df == df_recovered
-
-        end
-
         @testset "JDF" begin
             fname = joinpath(testpath, "test.jdf")
             write_table!(fname, df)
@@ -134,6 +113,28 @@ using JSONTables
             end
             @test size(df_recovered[1]) == size(df_recovered[2]) == size(df_recovered[3]) == (3, 6)
             @test dropmissing(df_recovered[1]) ==  dropmissing(df_recovered[2]) ==  dropmissing(df_recovered[3]) 
+
+        end
+
+        @testset "zipped" begin
+            fname = joinpath(testpath, "test.zip")
+            write_table!(fname, df)
+            @test filesize(fname) > 0
+            df_recovered = read_table(fname) |> DataFrame!
+            @test df == df_recovered
+
+            fname = joinpath(testpath, "test2.zip")
+            write_table!(fname, nt)
+            @test filesize(fname) > 0
+            nt_recovered = read_table(fname, "test2.csv")
+            @test DataFrame(nt) == DataFrame(nt_recovered)
+            
+            fname = joinpath(testpath, "test3.zip")
+            write_table!(fname, "test.json", df)
+            @test filesize(fname) > 0
+            df_recovered = read_table(fname, "test.json") |> DataFrame # note that |> DataFrame! gives wrong column types!
+            df_recovered.e = Date.(df_recovered.e) # Date format is not automatically detected, need to be converted manually
+            @test df == df_recovered
 
         end
 
