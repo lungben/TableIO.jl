@@ -9,8 +9,8 @@ This package is "intelligent" in this sense that it automatically selects the ri
 ## Supported Formats
 
 * CSV via https://github.com/JuliaData/CSV.jl (installed as core depencency of TableIO)
-* Zipped CSV via https://github.com/fhs/ZipFile.jl
 * JSON via https://github.com/JuliaData/JSONTables.jl
+* Zipped CSV or JSON via https://github.com/fhs/ZipFile.jl
 * JDF via https://github.com/xiaodaigh/JDF.jl
 * Parquet via https://github.com/JuliaIO/Parquet.jl
 * Excel (xlsx) via https://github.com/felipenoris/XLSX.jl
@@ -56,6 +56,9 @@ JSON Format:
     using JSONTables, Dates
     df = read_table("my_data.json") |> DataFrame # note that |> DataFrame! gives wrong column types!
     df.my_date_col = Dates.(df.my_date_col) # Dates are imported as strings by default, need to be manually converted
+
+    using ZipFile
+    df = read_table("my_data.zip", "my_data.json") |> DataFrame
 
 Binary Formats:
 
@@ -107,7 +110,7 @@ CSV Format:
     write_table!("my_data.csv", df)
 
     using ZipFile
-    write_table!("my_data.zip", df) # zipped CSV
+    write_table!("my_data.zip", df) # zipped CSV. If no "inner" file name is given, the table is always stored in csv format with the same file name as the zip archive
 
 JSON Format:
 
@@ -115,6 +118,9 @@ JSON Format:
     write_table!("my_data.json", df) # dictionary of arrays
     write_table!("my_data.json", df, orientation=:objecttable) # dictionary of arrays
     write_table!("my_data.json", df, orientation=:arraytable) # array of dictionaries
+
+    using ZipFile
+    write_table!("my_data.zip", "my_data.json", df) # need to explicitly give a file name inside zip archive, otherwise csv format is used
 
 Binary Formats:
 

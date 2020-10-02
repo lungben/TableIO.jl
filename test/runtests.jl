@@ -135,6 +135,9 @@ using JSONTables
             df_recovered = read_table(fname, "test.json") |> DataFrame # note that |> DataFrame! gives wrong column types!
             df_recovered.e = Date.(df_recovered.e) # Date format is not automatically detected, need to be converted manually
             @test df == df_recovered
+            df_recovered = read_table(fname) |> DataFrame # note that |> DataFrame! gives wrong column types!
+            df_recovered.e = Date.(df_recovered.e) # Date format is not automatically detected, need to be converted manually
+            @test df == df_recovered
 
         end
 
