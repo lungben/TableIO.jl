@@ -3,12 +3,22 @@ using .JSONTables
 function read_table(::JSONFormat, filename:: AbstractString)
     local output
     open(filename, "r") do file
-        output = jsontable(file)
+        output = read_table(JSONFormat(), file)
     end
     return output 
 end
 
+read_table(::JSONFormat, io:: IO) = jsontable(io)
+
 function write_table(::JSONFormat, filename:: AbstractString, table; orientation=:objecttable)
+    open(filename, "w") do file
+        write_table(JSONFormat(), file, table; orientation=orientation)
+    end
+    return filename
+end
+
+function write_table(::JSONFormat, io:: IO, table; orientation=:objecttable)
+    _checktable(table)
     if orientation == :objecttable
         export_func = JSONTables.objecttable
     elseif orientation == :arraytable
@@ -16,10 +26,5 @@ function write_table(::JSONFormat, filename:: AbstractString, table; orientation
     else
         error("`orientation` must be  `:objecttable` (default) or `:arraytable`")
     end
-    _checktable(table)
-
-    open(filename, "w") do file
-        export_func(file, table)
-    end
-    return filename
+    export_func(io, table)
 end

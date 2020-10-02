@@ -6,6 +6,6 @@ import .StatFiles
 
 const StatFilesTypes = Union{StataFormat, SPSSFormat, SASFormat} # dispatching to the concrete format is done in StatFiles.jl
 
-function read_table(::StatFilesTypes, filename:: AbstractString; kwargs...)
+function read_table(::StatFilesTypes, filename; kwargs...)
     return StatFiles.load(filename; kwargs...)
 end

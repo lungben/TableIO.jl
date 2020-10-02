@@ -4,7 +4,7 @@
 
 using .SQLite
 
-function read_table(::SQLiteFormat, filename:: AbstractString, tablename:: AbstractString; kwargs...)
+function read_table(::SQLiteFormat, filename, tablename:: AbstractString; kwargs...)
     db = SQLite.DB(filename)
     return read_table(db, tablename; kwargs...)
 end
@@ -22,7 +22,7 @@ end
 
 read_sql(db:: SQLite.DB, sql:: AbstractString) = DBInterface.execute(db, sql)
 
-function write_table(::SQLiteFormat, filename:: AbstractString, tablename:: AbstractString, table; kwargs...)
+function write_table(::SQLiteFormat, filename, tablename:: AbstractString, table; kwargs...)
     _checktable(table)
     db = SQLite.DB(filename)
     return write_table(db, tablename, table; kwargs...)
