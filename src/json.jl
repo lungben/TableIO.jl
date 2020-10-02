@@ -10,14 +10,14 @@ end
 
 read_table(::JSONFormat, io:: IO) = jsontable(io)
 
-function write_table(::JSONFormat, filename:: AbstractString, table; orientation=:objecttable)
+function write_table!(::JSONFormat, filename:: AbstractString, table; orientation=:objecttable)
     open(filename, "w") do file
-        write_table(JSONFormat(), file, table; orientation=orientation)
+        write_table!(JSONFormat(), file, table; orientation=orientation)
     end
-    return filename
+    nothing
 end
 
-function write_table(::JSONFormat, io:: IO, table; orientation=:objecttable)
+function write_table!(::JSONFormat, io:: IO, table; orientation=:objecttable)
     _checktable(table)
     if orientation == :objecttable
         export_func = JSONTables.objecttable
@@ -27,4 +27,5 @@ function write_table(::JSONFormat, io:: IO, table; orientation=:objecttable)
         error("`orientation` must be  `:objecttable` (default) or `:arraytable`")
     end
     export_func(io, table)
+    nothing
 end

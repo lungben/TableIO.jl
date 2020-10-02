@@ -15,8 +15,8 @@ function read_table(::ParquetFormat, filename; kwargs...)
     return RecordCursor(parfile)
 end
 
-function write_table(::ParquetFormat, filename, table; kwargs...)
+function write_table!(::ParquetFormat, filename, table; kwargs...)
     _checktable(table)
     write_parquet(filename, table; kwargs...)
-    return filename
+    nothing
 end

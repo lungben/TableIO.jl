@@ -22,10 +22,10 @@ end
 
 read_sql(db:: SQLite.DB, sql:: AbstractString) = DBInterface.execute(db, sql)
 
-function write_table(::SQLiteFormat, filename, tablename:: AbstractString, table; kwargs...)
+function write_table!(::SQLiteFormat, filename, tablename:: AbstractString, table; kwargs...)
     _checktable(table)
     db = SQLite.DB(filename)
-    return write_table(db, tablename, table; kwargs...)
+    write_table!(db, tablename, table; kwargs...)
 end
 
 """
@@ -37,9 +37,9 @@ the `kwargs` passed to `SQLite.load!`.
 
 Note that this behavior is different to the one for PostgreSQL, where the table must already exist.
 """
-function write_table(db:: SQLite.DB, tablename:: AbstractString, table; kwargs...)
+function write_table!(db:: SQLite.DB, tablename:: AbstractString, table; kwargs...)
     _checktable(table)
     table |> SQLite.load!(db, tablename; kwargs...)
-    return tablename
+    nothing
 end
 

@@ -9,10 +9,10 @@ function read_table(::JDFFormat, filename:: AbstractString; kwargs...):: DataFra
     return loadjdf(filename; kwargs...)
 end
 
-function write_table(::JDFFormat, filename:: AbstractString, table:: DataFrame; kwargs...)
+function write_table!(::JDFFormat, filename:: AbstractString, table:: DataFrame; kwargs...)
     savejdf(filename, table; kwargs...)
-    return filename
+    nothing
 end
 
 # JDF supports only DataFrames, not arbitrary Tables.jl inputs. For export, the table is converted to a DataFrame first.
-write_table(::JDFFormat, filename:: AbstractString, table; kwargs...) = write_table(JDFFormat(), filename, DataFrame(table); kwargs...)
+write_table!(::JDFFormat, filename:: AbstractString, table; kwargs...) = write_table!(JDFFormat(), filename, DataFrame(table); kwargs...)

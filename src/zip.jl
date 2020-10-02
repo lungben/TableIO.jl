@@ -38,18 +38,19 @@ end
 """
 The csv file inside the zip archive is named analogue to the zip file, but with `.csv` extension.
 """
-function write_table(::ZippedFormat, zip_filename:: AbstractString, table; kwargs...)
+function write_table!(::ZippedFormat, zip_filename:: AbstractString, table; kwargs...)
     _checktable(table)
     csv_filename = string(splitext(basename(zip_filename))[1], ".csv")
-    return write_table(ZippedFormat(), zip_filename, csv_filename, table; kwargs...)
+    write_table!(ZippedFormat(), zip_filename, csv_filename, table; kwargs...)
+    nothing
 end
 
-function write_table(::ZippedFormat, zip_filename:: AbstractString, filename_in_zip:: AbstractString, table; kwargs...)
+function write_table!(::ZippedFormat, zip_filename:: AbstractString, filename_in_zip:: AbstractString, table; kwargs...)
     _checktable(table)
     zf = ZipFile.Writer(zip_filename)
     file_in_zip = ZipFile.addfile(zf, filename_in_zip, method=ZipFile.Deflate)
     file_type_in_zip = _get_file_type(filename_in_zip)()
-    write_table(file_type_in_zip, file_in_zip, table; kwargs...)
+    write_table!(file_type_in_zip, file_in_zip, table; kwargs...)
     close(zf)
-    return zip_filename
+    nothing
 end

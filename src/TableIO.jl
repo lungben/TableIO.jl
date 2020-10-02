@@ -1,6 +1,6 @@
 module TableIO
 
-export read_table, write_table, read_sql
+export read_table, write_table!, read_sql
 
 using Tables, Requires
 using CSV, DataFrames # required for multiple file types, therefore currently not optional
@@ -58,22 +58,21 @@ end
 
 
 """
-    write_table(filename:: AbstractString, table; kwargs...):: AbstractString
+    write_table!(filename:: AbstractString, table; kwargs...):: AbstractString
 
 `filename`: path and filename of the output file
 `table`: a Tables.jl compatible object (e.g. a DataFrame) for storage
 `kwargs...`: keyword arguments passed to the underlying file writing function (e.g. `CSV.write`)
 
-Returns `filename`.
-
 Example:
 
-    write_table("my_output.csv", df)
+    write_table!("my_output.csv", df)
 
 """
-function write_table(filename:: AbstractString, table, args...; kwargs...):: AbstractString
+function write_table!(filename:: AbstractString, table, args...; kwargs...)
     data_type = _get_file_type(filename)()
-    write_table(data_type, filename, table, args...; kwargs...)
+    write_table!(data_type, filename, table, args...; kwargs...)
+    nothing
 end
 
 
@@ -89,10 +88,10 @@ function read_sql end
 read_table(::CSVFormat, filename:: AbstractString; kwargs...) = CSV.File(filename; kwargs...)
 read_table(::CSVFormat, io:: IO; kwargs...) = CSV.File(read(io); kwargs...)
 
-function write_table(::CSVFormat, filename, table; kwargs...)
+function write_table!(::CSVFormat, filename:: Union{AbstractString, IO}, table; kwargs...)
     _checktable(table)
     table |> CSV.write(filename; kwargs...)
-    return filename
+    nothing
 end
 
 
