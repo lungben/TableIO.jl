@@ -13,6 +13,7 @@ This package is "intelligent" in this sense that it automatically selects the ri
 * Zipped CSV or JSON via https://github.com/fhs/ZipFile.jl
 * JDF via https://github.com/xiaodaigh/JDF.jl
 * Parquet via https://github.com/JuliaIO/Parquet.jl
+* Apache Arrow via https://github.com/JuliaData/Arrow.jl
 * Excel (xlsx) via https://github.com/felipenoris/XLSX.jl
 * SQLite via https://github.com/JuliaDatabases/SQLite.jl
 * PostgreSQL via https://github.com/invenia/LibPQ.jl
@@ -68,6 +69,9 @@ Binary Formats:
     using Parquet
     mapping = Dict(["col_3"] => (String, Parquet.logical_string)) # String field types must be mapped to appropriate data types
     df = read_table("my_data.parquet"; map_logical_types=mapping) |> DataFrame! # Parquet
+
+    using Arrow
+    df = read_table("my_data.arrow") |> DataFrame! # Apache Arrow
 
 Excel:
 
@@ -129,6 +133,9 @@ Binary Formats:
 
     using Parquet
     write_table!("my_data.parquet", df) # Parquet - note that Date element type is not supported yet
+
+    using Arrow
+    write_table!("my_data.parquet", df) # Apache Arrow
 
 Excel:
 
