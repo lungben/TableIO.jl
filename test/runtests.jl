@@ -11,6 +11,7 @@ using ZipFile
 using SQLite
 using LibPQ
 using JSONTables
+using Arrow
 
 
 @testset "TableIO.jl" begin
@@ -64,6 +65,19 @@ using JSONTables
             @test filesize(fname) > 0
             mapping = Dict(["c"] => (String, Parquet.logical_string))
             nt_recovered = read_table(fname; map_logical_types=mapping)
+            @test DataFrame(nt) == DataFrame(nt_recovered)
+        end
+
+        @testset "Arrow" begin
+            fname = joinpath(testpath, "test.arrow")
+            write_table!(fname, df)
+            @test filesize(fname) > 0
+            df_recovered = read_table(fname) |> DataFrame!
+            @test df == df_recovered
+            fname = joinpath(testpath, "test2.arrow")
+            write_table!(fname, nt)
+            @test filesize(fname) > 0
+            nt_recovered = read_table(fname)
             @test DataFrame(nt) == DataFrame(nt_recovered)
         end
 

@@ -19,6 +19,7 @@ struct StataFormat <: AbstractFormat end
 struct SPSSFormat <: AbstractFormat end
 struct SASFormat <: AbstractFormat end
 struct JSONFormat <: AbstractFormat end
+struct ArrowFormat <: AbstractFormat end
 
 const FILE_EXTENSIONS = Dict(
     "zip" => ZippedFormat,
@@ -33,6 +34,7 @@ const FILE_EXTENSIONS = Dict(
     "sav" => SPSSFormat,
     "sas7bdat" => SASFormat,
     "json" => JSONFormat,
+    "arrow" => ArrowFormat,
 )
 
 ## Dispatching on file extensions
@@ -106,6 +108,7 @@ function __init__()
     @require SQLite = "0aa819cd-b072-5ff4-a722-6bc24af294d9" include("sqlite.jl")
     @require LibPQ = "194296ae-ab2e-5f79-8cd4-7183a0a5a0d1" include("postgresql.jl")
     @require JSONTables = "b9914132-a727-11e9-1322-f18e41205b0b" include("json.jl")
+    @require Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45" include("arrow.jl")
 end
 
 
