@@ -11,7 +11,7 @@ Alternatively, the string columns can be given
 
 """
 function read_table(::ParquetFormat, filename; kwargs...)
-    parfile = ParFile(filename; kwargs...)
+    parfile = Parquet.File(filename; kwargs...)
     return RecordCursor(parfile)
 end
 

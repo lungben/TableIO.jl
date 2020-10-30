@@ -11,3 +11,7 @@ StatFiles = "1463e38c-9381-5320-bcd4-4134955f093a"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 XLSX = "fdbf4ff8-1666-58a4-91e7-1b58723a45e0"
 ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
+
+[compat]
+
+Parquet = "0.7"
