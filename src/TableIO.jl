@@ -23,9 +23,11 @@ struct ArrowFormat <: AbstractFormat end
 
 
 # specify if a reader accepts an io buffer as input or if creation of a temp file is required
-supports_io_input(data_type:: AbstractFormat) = false
+supports_io_input(::AbstractFormat) = false
 
-supports_io_input(data_type:: CSVFormat) = true
+supports_io_input(::CSVFormat) = true
+supports_io_input(::JSONFormat) = true
+supports_io_input(::ArrowFormat) = true
 
 
 const FILE_EXTENSIONS = Dict(
@@ -64,8 +66,6 @@ function read_table(filename:: AbstractString, args...; kwargs...)
     data_type = _get_file_type(filename)()
     read_table(data_type, filename, args...; kwargs...)
 end
-
-
 
 """
     read_table(file_picker:: Dict, args...; kwargs...)
@@ -112,7 +112,6 @@ function write_table!(filename:: AbstractString, table, args...; kwargs...)
     nothing
 end
 
-
 """
     read_sql(db, sql:: AbstractString)
 
@@ -131,7 +130,6 @@ function write_table!(::CSVFormat, output:: Union{AbstractString, IO}, table; kw
     nothing
 end
 
-
 ## conditional dependencies
 
 function __init__()
@@ -146,7 +144,6 @@ function __init__()
     @require Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45" include("arrow.jl")
 end
 
-
 ## Utilities
 
 _get_file_extension(filename) = lowercase(splitext(filename)[2][2:end])
@@ -156,7 +153,6 @@ _checktable(table) = Tables.istable(typeof(table)) || error("table has no Tables
 
 # poor man's approach to prevent SQL injections / garbage inputs
 _checktablename(tablename) = match(r"^[a-zA-Z0-9_]*$", tablename) === nothing && error("tablename must only contain alphanumeric characters and underscores")
-
 
 function _get_file_picker_data(file_picker:: Dict)
     data = file_picker["data"]:: Vector{UInt8} # brings back type stability
