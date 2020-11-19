@@ -77,8 +77,19 @@ Example:
 """
 function read_table(filename:: AbstractString, args...; kwargs...)
     data_type = _get_file_type(filename)()
-    _import_package(data_type)
-    Base.invokelatest(read_table, data_type, filename, args...; kwargs...)
+    try
+        # to speed up the standard case (format specific package is imported), this is tried first
+        return read_table(data_type, filename, args...; kwargs...)
+    catch ex
+        if ex isa MethodError
+            # import format specific package and invoke latest version of the function to avoid world age issues
+            _import_package(data_type)
+            return Base.invokelatest(read_table, data_type, filename, args...; kwargs...)
+        else
+            rethrow()
+        end
+    end
+    
 end
 
 """
@@ -98,15 +109,29 @@ function read_table(file_picker:: Dict, args...; kwargs...)
     filename, data = _get_file_picker_data(file_picker)
     data_type = _get_file_type(filename)()
     data_buffer = IOBuffer(data)
+
     _import_package(data_type)
 
     if supports_io_input(data_type)
-        return Base.invokelatest(read_table, data_type, data_buffer, args...; kwargs...)
+        data_object = data_buffer # if it is supported by the corresponding package, creation of a temporary file is avoided and the IOBuffer is used directly
     else
         tmp_file = joinpath(mktempdir(), filename)
         write(tmp_file, data_buffer)
-        return Base.invokelatest(read_table, data_type, tmp_file, args...; kwargs...)
+        data_object = tmp_file
     end  
+
+    try
+        # to speed up the standard case (format specific package is imported), this is tried first
+        read_table(data_type, data_object, args...; kwargs...)
+    catch ex
+        if ex isa MethodError
+            # import format specific package and invoke latest version of the function to avoid world age issues
+            _import_package(data_type)
+            return Base.invokelatest(read_table, data_type, data_object, args...; kwargs...)
+        else
+            rethrow()
+        end
+    end
 end
 
 """
@@ -123,8 +148,19 @@ Example:
 """
 function write_table!(filename:: AbstractString, table, args...; kwargs...)
     data_type = _get_file_type(filename)()
+    try
+        # to speed up the standard case (format specific package is imported), this is tried first
+        write_table!(data_type, filename, table, args...; kwargs...)
+    catch ex
+        if ex isa MethodError
+            # import format specific package and invoke latest version of the function to avoid world age issues
+            _import_package(data_type)
+            return Base.invokelatest(write_table!, data_type, filename, table, args...; kwargs...)
+        else
+            rethrow()
+        end
+    end
     _import_package(data_type)
-    Base.invokelatest(write_table!, data_type, filename, table, args...; kwargs...)
     nothing
 end
 
@@ -170,7 +206,25 @@ function _import_package(::T) where {T <: AbstractFormat}
         return
     end
     import_package = IMPORT_PACKAGES[T]
-    @suppress @eval import $import_package
+
+    # A warning is raised if a package is imported which is not a dependency of TableIO. This warning is suppressed.
+    # If the package is not installed, an error message is raised.
+    try
+        @suppress @eval import $import_package
+    catch ex
+        # If the package is not installed, the error message is swallowed by @suppress, but the warning message for a missing TableIO dependeny is raised.
+        # To get back the more helpful error message for a not installed package, it is regenerated below.
+        if ex isa ArgumentError
+            throw(ArgumentError("""
+                ERROR: ArgumentError: Package $import_package not found in current path:
+                - Run `import Pkg; Pkg.add("$import_package")` to install the $import_package package.
+                """))
+        else
+            rethrow()
+        end
+    end
+
+    # note that it is required to use Base.invokelatest for calling any functionality depending on the imported package, unless one returns to global scope before.
 end
 
 
