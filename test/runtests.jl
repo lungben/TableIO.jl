@@ -231,4 +231,6 @@ using Arrow
         end
     end
 
+    include("plutoui_file_picker.jl")
+
 end
