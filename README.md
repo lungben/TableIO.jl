@@ -54,7 +54,8 @@ CSV Format:
 
 JSON Format:
 
-    using JSONTables, Dates
+    using JSONTables # this is optional - the package is automatically imported if installed
+    using Dates
     df = read_table("my_data.json") |> DataFrame # note that |> DataFrame(; copycols=false) gives wrong column types!
     df.my_date_col = Dates.(df.my_date_col) # Dates are imported as strings by default, need to be manually converted
 
@@ -63,19 +64,19 @@ JSON Format:
 
 Binary Formats:
 
-    using JDF
+    using JDF # this is optional - the package is automatically imported if installed
     df = DataFrame(read_table("my_data.jdf"); copycols=false) # JDF (compressed binary format)
 
     using Parquet
     mapping = Dict(["col_3"] => (String, Parquet.logical_string)) # String field types must be mapped to appropriate data types
     df = DataFrame(read_table("my_data.parquet"; map_logical_types=mapping); copycols=false) # Parquet
 
-    using Arrow
+    using Arrow # this is optional - the package is automatically imported if installed
     df = DataFrame(read_table("my_data.arrow"); copycols=false) # Apache Arrow
 
 Excel:
 
-    using XLSX
+    using XLSX # this is optional - the package is automatically imported if installed
     df = DataFrame(read_table("my_data.xlsx"); copycols=false) # imports 1st sheet
     df = DataFrame(read_table("my_data.xlsx", "MyAwesomeSheet"); copycols=false) # imports named sheet
 
@@ -94,7 +95,7 @@ PostgreSQL:
 
 StatFiles.jl integration:
 
-    using StatFiles
+    using StatFiles # this is optional - the package is automatically imported if installed
     df = DataFrame(read_table("my_data.dta"); copycols=false) # Stata
     df = DataFrame(read_table("my_data.sav"); copycols=false) # SPSS
     df = DataFrame(read_table("my_data.sas7bdat"); copycols=false) # SAS
@@ -118,28 +119,28 @@ CSV Format:
 
 JSON Format:
 
-    using JSONTables
+    using JSONTables # this is optional - the package is automatically imported if installed
     write_table!("my_data.json", df) # dictionary of arrays
     write_table!("my_data.json", df, orientation=:objecttable) # dictionary of arrays
     write_table!("my_data.json", df, orientation=:arraytable) # array of dictionaries
 
-    using ZipFile
+    using ZipFile # this is optional - the package is automatically imported if installed
     write_table!("my_data.zip", "my_data.json", df) # need to explicitly give a file name inside zip archive, otherwise csv format is used
 
 Binary Formats:
 
-    using JDF
+    using JDF # this is optional - the package is automatically imported if installed
     write_table!("my_data.jdf", df) # JDF (compressed binary format)
 
-    using Parquet
+    using Parquet # this is optional - the package is automatically imported if installed
     write_table!("my_data.parquet", df) # Parquet - note that Date element type is not supported yet
 
-    using Arrow
+    using Arrow # this is optional - the package is automatically imported if installed
     write_table!("my_data.parquet", df) # Apache Arrow
 
 Excel:
 
-    using XLSX
+    using XLSX # this is optional - the package is automatically imported if installed
     write_table!("my_data.xlsx", df) # creates sheet with default name
     write_table!("my_data.xlsx", "test_sheet_42", df) # creates sheet with defined name
 
@@ -162,7 +163,7 @@ StatFiles.jl integration: `write_table!` is not supported.
 
 It is possible to pass the output of `read_table` directly as input to `write_table!` for converting tabular data between different formats:
 
-    using ZipFiles, JDF, XLSX, SQLite
+    using ZipFiles, JDF, XLSX, SQLite # this is optional - the packages are automatically imported if installed
 
     name1 = joinpath(testpath, "test.zip") # zipped CSV
     name2 = joinpath(testpath, "testx.jdf") # binary
@@ -182,11 +183,11 @@ In a [Pluto.jl](https://github.com/fonsp/Pluto.jl) notebook, TableIO can be used
 Example (run in a Pluto.jl notebook):
 
     using PlutoUI, TableIO, DataFrames
-    using XLSX # import the packages required for the uploaded file formats
-    @bind f PlutoUI.FilePicker() # pick a CSV or an Excel file
+    @bind f PlutoUI.FilePicker() # pick any supported file type
     df = DataFrame(read_table(f); copycols=false)
 
-This functionality works for all supported file formats, just make sure to import the corresponding packages before.
+This functionality works for all supported file formats if the corresponding import packages are installed.
+It is not required to import them, this is done automatically.
 
 ## Testing
 
