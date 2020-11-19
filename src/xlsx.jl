@@ -13,7 +13,7 @@ end
 function read_table(::ExcelFormat, filename:: AbstractString; kwargs...)
     f = XLSX.readxlsx(filename)
     sheet = first(f.workbook.sheets)
-    return XLSX.eachtablerow(sheet) |> DataFrame! # this would be no valid Table.jl output if not converted to DataFrame
+    return DataFrame(XLSX.eachtablerow(sheet); copycols=false) # this would be no valid Table.jl output if not converted to DataFrame
 end   
 
 

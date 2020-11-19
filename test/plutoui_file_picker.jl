@@ -11,7 +11,7 @@
         file_picker = Dict{Any, Any}("name" => filename, 
             "data" => read(joinpath(testpath, filename)),
             "type" => "")
-        df_recovered = read_table(file_picker) |> DataFrame!
+        df_recovered = DataFrame(read_table(file_picker); copycols=false)
         df_recovered[!, :e] = Date.(df_recovered.e) # some impots do not convert date columns automatically
 
         @test df_recovered == df 
