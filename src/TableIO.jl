@@ -21,6 +21,13 @@ struct SASFormat <: AbstractFormat end
 struct JSONFormat <: AbstractFormat end
 struct ArrowFormat <: AbstractFormat end
 
+
+# specify if a reader accepts an io buffer as input or if creation of a temp file is required
+supports_io_input(data_type:: AbstractFormat) = false
+
+supports_io_input(data_type:: CSVFormat) = true
+
+
 const FILE_EXTENSIONS = Dict(
     "zip" => ZippedFormat,
     "csv" => CSVFormat,
@@ -58,6 +65,34 @@ function read_table(filename:: AbstractString, args...; kwargs...)
     read_table(data_type, filename, args...; kwargs...)
 end
 
+
+
+"""
+    read_table(file_picker:: Dict, args...; kwargs...)
+
+Reading tabular data from a PlutoUI.jl FilePicker.
+
+Usage (in a Pluto.jl notebook):
+
+    using PlutoUI, TableIO, DataFrames
+    using XLSX # import the packages required for the uploaded file formats
+    @bind f PlutoUI.FilePicker()
+    df = read_table(f) |> DataFrame!
+
+"""
+function read_table(file_picker:: Dict, args...; kwargs...)
+    filename, data = _get_file_picker_data(file_picker)
+    data_type = _get_file_type(filename)()
+    data_buffer = IOBuffer(data)
+
+    if supports_io_input(data_type)
+        return read_table(data_type, data_buffer, args...; kwargs...)
+    else
+        tmp_file = joinpath(mktempdir(), filename)
+        write(tmp_file, data_buffer)
+        return read_table(data_type, tmp_file, args...; kwargs...)
+    end  
+end
 
 """
     write_table!(filename:: AbstractString, table; kwargs...):: AbstractString
@@ -122,5 +157,12 @@ _checktable(table) = Tables.istable(typeof(table)) || error("table has no Tables
 # poor man's approach to prevent SQL injections / garbage inputs
 _checktablename(tablename) = match(r"^[a-zA-Z0-9_]*$", tablename) === nothing && error("tablename must only contain alphanumeric characters and underscores")
 
+
+function _get_file_picker_data(file_picker:: Dict)
+    data = file_picker["data"]:: Vector{UInt8} # brings back type stability
+    length(data) == 0 && error("no file selected yet")
+    filename = file_picker["name"]:: String
+    return filename, data
+end
 
 end
