@@ -175,6 +175,19 @@ It is possible to pass the output of `read_table` directly as input to `write_ta
 
     df_recovered = read_table(name4, "my_table") |> DataFrame!
 
+## PlutoUI Integration
+
+In a [Pluto.jl](https://github.com/fonsp/Pluto.jl) notebook, TableIO can be used directly on a [PlutoUI.jl](https://github.com/fonsp/PlutoUI.jl) FilePicker output.
+
+Example (run in a Pluto.jl notebook):
+
+    using PlutoUI, TableIO, DataFrames
+    using XLSX # import the packages required for the uploaded file formats
+    @bind f PlutoUI.FilePicker() # pick a CSV or an Excel file
+    df = read_table(f) |> DataFrame!
+
+This functionality works for all supported file formats, just make sure to import the corresponding packages before.
+
 ## Testing
 
 The PostgreSQL component requires a running PostgreSQL database for unit tests. This database can be started using the following command:

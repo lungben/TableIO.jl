@@ -74,7 +74,8 @@ Reading tabular data from a PlutoUI.jl FilePicker.
 
 Usage (in a Pluto.jl notebook):
 
-    using PlutoUI, TableIO, XLSX, DataFrames
+    using PlutoUI, TableIO, DataFrames
+    using XLSX # import the packages required for the uploaded file formats
     @bind f PlutoUI.FilePicker()
     df = read_table(f) |> DataFrame!
 
@@ -91,14 +92,6 @@ function read_table(file_picker:: Dict, args...; kwargs...)
         write(tmp_file, data_buffer)
         return read_table(data_type, tmp_file, args...; kwargs...)
     end  
-end
-
-
-function _get_file_picker_data(file_picker:: Dict)
-    data = file_picker["data"]:: Vector{UInt8}
-    length(data) == 0 && error("no file selected yet")
-    filename = file_picker["name"]:: String
-    return filename, data
 end
 
 """
@@ -164,5 +157,12 @@ _checktable(table) = Tables.istable(typeof(table)) || error("table has no Tables
 # poor man's approach to prevent SQL injections / garbage inputs
 _checktablename(tablename) = match(r"^[a-zA-Z0-9_]*$", tablename) === nothing && error("tablename must only contain alphanumeric characters and underscores")
 
+
+function _get_file_picker_data(file_picker:: Dict)
+    data = file_picker["data"]:: Vector{UInt8} # brings back type stability
+    length(data) == 0 && error("no file selected yet")
+    filename = file_picker["name"]:: String
+    return filename, data
+end
 
 end
