@@ -14,7 +14,7 @@ before_install:
   - docker run --name libpqjl-postgresql -e POSTGRES_HOST_AUTH_METHOD=trust -p $PGPORT:5432 -d postgres:$POSTGRESQL_VERSION-alpine
 
 julia:
-  # - nightly
+  - nightly
   - 1.5
 
 allow_failures:

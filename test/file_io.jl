@@ -120,7 +120,7 @@
         @test DataFrame(nt) == DataFrame(nt_recovered)
         
         fname = joinpath(testpath, "test3.zip")
-        write_table!(fname, "test.json", df)
+        write_table!(fname, "test.json", df; orientation=:arraytable)
         @test filesize(fname) > 0
         df_recovered = read_table(fname, "test.json") |> DataFrame # note that DataFrame(; copycols=false) gives wrong column types!
         df_recovered.e = Date.(df_recovered.e) # Date format is not automatically detected, need to be converted manually
