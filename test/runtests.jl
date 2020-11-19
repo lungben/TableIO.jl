@@ -4,14 +4,16 @@ using DataFrames
 using Dates
 
 using Parquet
-using JDF
-using XLSX
-using StatFiles
-using ZipFile
 using SQLite
 using LibPQ
-using JSONTables
-using Arrow
+
+# the following packages are imported automatically when a corresponding file type is used
+# using JDF
+# using XLSX
+# using StatFiles
+# using ZipFile
+# using JSONTables
+# using Arrow
 
 testpath = mktempdir()
 println("Temporary directory for test files: ", testpath)

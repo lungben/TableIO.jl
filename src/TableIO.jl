@@ -2,7 +2,7 @@ module TableIO
 
 export read_table, write_table!, read_sql
 
-using Tables, Requires
+using Tables, Requires, Suppressor
 using CSV, DataFrames # required for multiple file types, therefore currently not optional
 
 ## definition of file formats and extensions
@@ -46,6 +46,19 @@ const FILE_EXTENSIONS = Dict(
     "arrow" => ArrowFormat,
 )
 
+const IMPORT_PACKAGES = Dict(
+    ZippedFormat => :ZipFile,
+    JDFFormat => :JDF,
+    ParquetFormat => :Parquet,
+    ExcelFormat => :XLSX,
+    SQLiteFormat => :SQLite,
+    StataFormat => :StatFiles,
+    SPSSFormat => :StatFiles,
+    SASFormat => :StatFiles,
+    JSONFormat => :JSONTables,
+    ArrowFormat => :Arrow,
+)
+
 ## Dispatching on file extensions
 
 """
@@ -64,7 +77,8 @@ Example:
 """
 function read_table(filename:: AbstractString, args...; kwargs...)
     data_type = _get_file_type(filename)()
-    read_table(data_type, filename, args...; kwargs...)
+    _import_package(data_type)
+    Base.invokelatest(read_table, data_type, filename, args...; kwargs...)
 end
 
 """
@@ -84,13 +98,14 @@ function read_table(file_picker:: Dict, args...; kwargs...)
     filename, data = _get_file_picker_data(file_picker)
     data_type = _get_file_type(filename)()
     data_buffer = IOBuffer(data)
+    _import_package(data_type)
 
     if supports_io_input(data_type)
-        return read_table(data_type, data_buffer, args...; kwargs...)
+        return Base.invokelatest(read_table, data_type, data_buffer, args...; kwargs...)
     else
         tmp_file = joinpath(mktempdir(), filename)
         write(tmp_file, data_buffer)
-        return read_table(data_type, tmp_file, args...; kwargs...)
+        return Base.invokelatest(read_table, data_type, tmp_file, args...; kwargs...)
     end  
 end
 
@@ -108,7 +123,8 @@ Example:
 """
 function write_table!(filename:: AbstractString, table, args...; kwargs...)
     data_type = _get_file_type(filename)()
-    write_table!(data_type, filename, table, args...; kwargs...)
+    _import_package(data_type)
+    Base.invokelatest(write_table!, data_type, filename, table, args...; kwargs...)
     nothing
 end
 
@@ -148,6 +164,15 @@ end
 
 _get_file_extension(filename) = lowercase(splitext(filename)[2][2:end])
 _get_file_type(filename) = FILE_EXTENSIONS[_get_file_extension(filename)]
+
+function _import_package(::T) where {T <: AbstractFormat}
+    if T ∉ keys(IMPORT_PACKAGES)
+        return
+    end
+    import_package = IMPORT_PACKAGES[T]
+    @suppress @eval import $import_package
+end
+
 
 _checktable(table) = Tables.istable(typeof(table)) || error("table has no Tables.jl compatible interface")
 
