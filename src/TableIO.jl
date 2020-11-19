@@ -58,7 +58,7 @@ Returns a Tables.jl interface compatible object.
 
 Example:
 
-    df = read_table("my_data.csv") |> DataFrame!
+    df = DataFrame(read_table("my_data.csv"); copycols=false)
 
 
 """
@@ -77,7 +77,7 @@ Usage (in a Pluto.jl notebook):
     using PlutoUI, TableIO, DataFrames
     using XLSX # import the packages required for the uploaded file formats
     @bind f PlutoUI.FilePicker()
-    df = read_table(f) |> DataFrame!
+    df = DataFrame(read_table(f); copycols=false)
 
 """
 function read_table(file_picker:: Dict, args...; kwargs...)

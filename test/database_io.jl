@@ -6,10 +6,10 @@
 
         write_table!(db, "test1", df)
         @test filesize(fname) > 0
-        df_recovered = read_table(fname, "test1") |> DataFrame!
+        df_recovered = DataFrame(read_table(fname, "test1"); copycols=false)
         @test df == df_recovered
         
-        df_sql = read_sql(db, "select * from test1 where a < 5") |> DataFrame!
+        df_sql = DataFrame(read_sql(db, "select * from test1 where a < 5"); copycols=false)
         @test df[df.a .< 5, :] == df_sql
 
         write_table!(fname, "test2", nt)
@@ -31,10 +31,10 @@
             f character varying
             );""")
         write_table!(conn, "test1", df)
-        df_recovered = read_table(conn, "test1") |> DataFrame!
+        df_recovered = DataFrame(read_table(conn, "test1"); copycols=false)
         @test df == df_recovered
 
-        df_sql = read_sql(conn, "select * from test1 where a < 5") |> DataFrame!
+        df_sql = DataFrame(read_sql(conn, "select * from test1 where a < 5"); copycols=false)
         @test df[df.a .< 5, :] == df_sql
 
         execute(conn, """CREATE TEMPORARY TABLE test2 (

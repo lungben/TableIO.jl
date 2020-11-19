@@ -47,15 +47,15 @@ reads a data source (file or database) and returns a Table.jl interface, e.g. fo
 
 CSV Format:
 
-    df = read_table("my_data.csv") |> DataFrame! # Keyword arguments can be passed to the CSV reader (CSV.jl)
+    df = DataFrame(read_table("my_data.csv"); copycols=false) # Keyword arguments can be passed to the CSV reader (CSV.jl)
 
     using ZipFile
-    df = read_table("my_data.zip") |> DataFrame! # zipped CSV format (assuming there is only 1 file in the archive)
+    df = DataFrame(read_table("my_data.zip"); copycols=false) # zipped CSV format (assuming there is only 1 file in the archive)
 
 JSON Format:
 
     using JSONTables, Dates
-    df = read_table("my_data.json") |> DataFrame # note that |> DataFrame! gives wrong column types!
+    df = read_table("my_data.json") |> DataFrame # note that |> DataFrame(; copycols=false) gives wrong column types!
     df.my_date_col = Dates.(df.my_date_col) # Dates are imported as strings by default, need to be manually converted
 
     using ZipFile
@@ -64,40 +64,40 @@ JSON Format:
 Binary Formats:
 
     using JDF
-    df = read_table("my_data.jdf") |> DataFrame! # JDF (compressed binary format)
+    df = DataFrame(read_table("my_data.jdf"); copycols=false) # JDF (compressed binary format)
 
     using Parquet
     mapping = Dict(["col_3"] => (String, Parquet.logical_string)) # String field types must be mapped to appropriate data types
-    df = read_table("my_data.parquet"; map_logical_types=mapping) |> DataFrame! # Parquet
+    df = DataFrame(read_table("my_data.parquet"; map_logical_types=mapping); copycols=false) # Parquet
 
     using Arrow
-    df = read_table("my_data.arrow") |> DataFrame! # Apache Arrow
+    df = DataFrame(read_table("my_data.arrow"); copycols=false) # Apache Arrow
 
 Excel:
 
     using XLSX
-    df = read_table("my_data.xlsx") |> DataFrame! # imports 1st sheet
-    df = read_table("my_data.xlsx", "MyAwesomeSheet") |> DataFrame! # imports named sheet
+    df = DataFrame(read_table("my_data.xlsx"); copycols=false) # imports 1st sheet
+    df = DataFrame(read_table("my_data.xlsx", "MyAwesomeSheet"); copycols=false) # imports named sheet
 
 SQLite:
 
     using SQLite
-    df = read_table("my_data.db", "my_table") |> DataFrame! # SQLite from file, table name must be given
+    df = DataFrame(read_table("my_data.db", "my_table"); copycols=false) # SQLite from file, table name must be given
     sqlite_db = SQLite.DB("my_data.db")
-    df = read_table(sqlite_db, "my_table") |> DataFrame! # SQLite from database connection, table name must be given
+    df = DataFrame(read_table(sqlite_db, "my_table"); copycols=false) # SQLite from database connection, table name must be given
 
 PostgreSQL:
 
     using LibPQ
     postgres_conn = LibPQ.Connection("dbname=postgres user=postgres")
-    df = read_table(postgres_conn, "my_table") |> DataFrame! # reading from Postgres connection
+    df = DataFrame(read_table(postgres_conn, "my_table"); copycols=false) # reading from Postgres connection
 
 StatFiles.jl integration:
 
     using StatFiles
-    df = read_table("my_data.dta") |> DataFrame! # Stata
-    df = read_table("my_data.sav") |> DataFrame! # SPSS
-    df = read_table("my_data.sas7bdat") |> DataFrame! # SAS
+    df = DataFrame(read_table("my_data.dta"); copycols=false) # Stata
+    df = DataFrame(read_table("my_data.sav"); copycols=false) # SPSS
+    df = DataFrame(read_table("my_data.sas7bdat"); copycols=false) # SAS
 
 ## Writing Data
 
@@ -173,7 +173,7 @@ It is possible to pass the output of `read_table` directly as input to `write_ta
     write_table!(name3, read_table(name2))
     write_table!(name4, "my_table", read_table(name3))
 
-    df_recovered = read_table(name4, "my_table") |> DataFrame!
+    df_recovered = DataFrame(read_table(name4, "my_table"); copycols=false)
 
 ## PlutoUI Integration
 
@@ -184,7 +184,7 @@ Example (run in a Pluto.jl notebook):
     using PlutoUI, TableIO, DataFrames
     using XLSX # import the packages required for the uploaded file formats
     @bind f PlutoUI.FilePicker() # pick a CSV or an Excel file
-    df = read_table(f) |> DataFrame!
+    df = DataFrame(read_table(f); copycols=false)
 
 This functionality works for all supported file formats, just make sure to import the corresponding packages before.
 
