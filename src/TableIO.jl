@@ -193,6 +193,7 @@ function __init__()
     @require SQLite = "0aa819cd-b072-5ff4-a722-6bc24af294d9" include("sqlite.jl")
     @require JSONTables = "b9914132-a727-11e9-1322-f18e41205b0b" include("json.jl")
     @require Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45" include("arrow.jl")
+    @require HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f" include("hdf5.jl")
 end
 
 ## Utilities
