@@ -21,6 +21,8 @@ struct SASFormat <: AbstractFormat end
 struct JSONFormat <: AbstractFormat end
 struct ArrowFormat <: AbstractFormat end
 
+# data base only formats - not completely integrated yet
+struct PostgresFormat <: AbstractFormat end
 
 # specify if a reader accepts an io buffer as input or if creation of a temp file is required
 supports_io_input(::AbstractFormat) = false
@@ -29,7 +31,8 @@ supports_io_input(::CSVFormat) = true
 supports_io_input(::JSONFormat) = true
 supports_io_input(::ArrowFormat) = true
 
-
+# mapping of file extensions to table file formats
+# multiple extensions can be mapped to the same format
 const FILE_EXTENSIONS = Dict(
     "zip" => ZippedFormat,
     "csv" => CSVFormat,
@@ -46,7 +49,9 @@ const FILE_EXTENSIONS = Dict(
     "arrow" => ArrowFormat,
 )
 
-const IMPORT_PACKAGES = Dict(
+# definition of the required packages for the specific formats
+# if a format requires multiple packages, define them as a list
+const PACKAGE_REQUIREMENTS = Dict{DataType, Union{Symbol, Vector{Symbol}}}(
     CSVFormat => :CSV,
     ZippedFormat => :ZipFile,
     JDFFormat => :JDF,
@@ -58,6 +63,7 @@ const IMPORT_PACKAGES = Dict(
     SASFormat => :StatFiles,
     JSONFormat => :JSONTables,
     ArrowFormat => :Arrow,
+    PostgresFormat => [:LibPQ, :CSV],
 )
 
 ## Dispatching on file extensions
@@ -77,7 +83,7 @@ Example:
 
 """
 function read_table(filename:: AbstractString, args...; kwargs...)
-    data_type = _get_file_type(filename)()
+    data_type = get_file_type(filename)
     try
         # to speed up the standard case (format specific package is imported), this is tried first
         return read_table(data_type, filename, args...; kwargs...)
@@ -108,7 +114,7 @@ Usage (in a Pluto.jl notebook):
 """
 function read_table(file_picker:: Dict, args...; kwargs...)
     filename, data = _get_file_picker_data(file_picker)
-    data_type = _get_file_type(filename)()
+    data_type = get_file_type(filename)
     data_buffer = IOBuffer(data)
 
     _import_package(data_type)
@@ -148,7 +154,7 @@ Example:
 
 """
 function write_table!(filename:: AbstractString, table, args...; kwargs...)
-    data_type = _get_file_type(filename)()
+    data_type = get_file_type(filename)
     try
         # to speed up the standard case (format specific package is imported), this is tried first
         write_table!(data_type, filename, table, args...; kwargs...)
@@ -192,13 +198,13 @@ end
 ## Utilities
 
 _get_file_extension(filename) = lowercase(splitext(filename)[2][2:end])
-_get_file_type(filename) = FILE_EXTENSIONS[_get_file_extension(filename)]
+get_file_type(filename) = FILE_EXTENSIONS[_get_file_extension(filename)]()
 
-function _import_package(::T) where {T <: AbstractFormat}
-    if T ∉ keys(IMPORT_PACKAGES)
-        return
-    end
-    import_package = IMPORT_PACKAGES[T]
+get_package_requirements(::T) where {T <: AbstractFormat} = PACKAGE_REQUIREMENTS[T]
+get_package_requirements(filename:: AbstractString) = get_package_requirements(get_file_type(filename))
+
+function _import_package(t::T) where {T <: AbstractFormat}
+    import_package = get_package_requirements(t)
 
     # A warning is raised if a package is imported which is not a dependency of TableIO. This warning is suppressed.
     # If the package is not installed, an error message is raised.
