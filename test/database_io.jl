@@ -1,3 +1,6 @@
+using SQLite
+using LibPQ
+
 @testset "Database IO" begin
         
     @testset "SQLite" begin

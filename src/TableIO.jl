@@ -3,7 +3,7 @@ module TableIO
 export read_table, write_table!, read_sql
 
 using Tables, Requires, Suppressor
-using CSV, DataFrames # required for multiple file types, therefore currently not optional
+using DataFrames # required for multiple file types, therefore currently not optional
 
 ## definition of file formats and extensions
 
@@ -47,6 +47,7 @@ const FILE_EXTENSIONS = Dict(
 )
 
 const IMPORT_PACKAGES = Dict(
+    CSVFormat => :CSV,
     ZippedFormat => :ZipFile,
     JDFFormat => :JDF,
     ParquetFormat => :Parquet,
@@ -171,27 +172,19 @@ Returns the result of the SQL query as a Tables.jl compatible object.
 """
 function read_sql end
 
-## CSV - always supported because CSV.jl is required for multiple other file formats, too
-
-read_table(::CSVFormat, filename:: AbstractString; kwargs...) = CSV.File(filename; kwargs...)
-read_table(::CSVFormat, io:: IO; kwargs...) = CSV.File(read(io); kwargs...)
-
-function write_table!(::CSVFormat, output:: Union{AbstractString, IO}, table; kwargs...)
-    _checktable(table)
-    table |> CSV.write(output; kwargs...)
-    nothing
-end
-
 ## conditional dependencies
 
 function __init__()
+    @require CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b" begin
+        include("csv.jl")
+        @require LibPQ = "194296ae-ab2e-5f79-8cd4-7183a0a5a0d1" include("postgresql.jl")
+    end
     @require ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea" include("zip.jl")
     @require JDF = "babc3d20-cd49-4f60-a736-a8f9c08892d3" include("jdf.jl")
     @require Parquet = "626c502c-15b0-58ad-a749-f091afb673ae" include("parquet.jl")
     @require XLSX = "fdbf4ff8-1666-58a4-91e7-1b58723a45e0" include("xlsx.jl")
     @require StatFiles = "1463e38c-9381-5320-bcd4-4134955f093a" include("stat_files.jl")
     @require SQLite = "0aa819cd-b072-5ff4-a722-6bc24af294d9" include("sqlite.jl")
-    @require LibPQ = "194296ae-ab2e-5f79-8cd4-7183a0a5a0d1" include("postgresql.jl")
     @require JSONTables = "b9914132-a727-11e9-1322-f18e41205b0b" include("json.jl")
     @require Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45" include("arrow.jl")
 end

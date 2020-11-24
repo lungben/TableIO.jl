@@ -3,10 +3,6 @@ using Test
 using DataFrames
 using Dates
 
-using Parquet
-using SQLite
-using LibPQ
-
 # the following packages are imported automatically when a corresponding file type is used
 # using JDF
 # using XLSX

@@ -1,3 +1,5 @@
+using Parquet
+
 @testset "File IO" begin
 
     @testset "CSV" begin

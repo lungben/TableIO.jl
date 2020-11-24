@@ -3,7 +3,7 @@
 @info "LibPQ.jl is available - including functionality to read / write PostgreSQL databases"
 
 using .LibPQ
-using CSV
+using .CSV
 
 """
     read_table(conn:: LibPQ.Connection, tablename:: AbstractString)
