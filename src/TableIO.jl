@@ -204,19 +204,28 @@ get_package_requirements(::T) where {T <: AbstractFormat} = PACKAGE_REQUIREMENTS
 get_package_requirements(filename:: AbstractString) = get_package_requirements(get_file_type(filename))
 
 function _import_package(t::T) where {T <: AbstractFormat}
-    import_package = get_package_requirements(t)
+    pkg_name = get_package_requirements(t)
+    _import_package(pkg_name)
+end
 
+function _import_package(pkg_names:: Vector{Symbol})
+    for pkg_name ∈ pkg_names
+        _import_package(pkg_name)
+    end
+end
+
+function _import_package(pkg_name:: Symbol)
     # A warning is raised if a package is imported which is not a dependency of TableIO. This warning is suppressed.
     # If the package is not installed, an error message is raised.
     try
-        @suppress @eval import $import_package
+        @suppress @eval import $pkg_name
     catch ex
         # If the package is not installed, the error message is swallowed by @suppress, but the warning message for a missing TableIO dependeny is raised.
         # To get back the more helpful error message for a not installed package, it is regenerated below.
         if ex isa ArgumentError
             throw(ArgumentError("""
-                ERROR: ArgumentError: Package $import_package not found in current path:
-                - Run `import Pkg; Pkg.add("$import_package")` to install the $import_package package.
+                ERROR: ArgumentError: Package $pkg_name not found in current path:
+                - Run `import Pkg; Pkg.add("$pkg_name")` to install the $pkg_name package.
                 """))
         else
             rethrow()
