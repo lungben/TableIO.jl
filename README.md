@@ -22,6 +22,11 @@ This package is "intelligent" in this sense that it automatically selects the ri
 The underlying packages are not direct dependencies of TableIO and are therefore not installed automatically with it.
 This is for reduction of installation size and package load time.
 
+Additional formats are supported via [Pandas.jl](https://github.com/JuliaPy/Pandas.jl):
+
+* HDF5 (requires PyTables installed on Python side)
+
+
 ## Installation
 
     using Pkg
