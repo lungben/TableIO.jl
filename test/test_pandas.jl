@@ -1,6 +1,7 @@
 # install Python dependencies
 ENV["PYTHON"] = ""
 using Pkg
+Pkg.add(["PyCall", "Conda"])
 Pkg.build("PyCall")
 using Conda
 Conda.add("pandas")
