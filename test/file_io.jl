@@ -25,7 +25,7 @@ using Parquet
         write_table!(fname, nt)
         @test isdir(fname) # JDF creates a directory, not a single file
         nt_recovered = read_table(fname)
-        @test DataFrame(nt) == nt_recovered # is already a DataFrame for JDF
+        @test DataFrame(nt) == DataFrame(nt_recovered)
     end
 
     @testset "Parquet" begin

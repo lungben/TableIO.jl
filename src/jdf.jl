@@ -5,7 +5,7 @@
 using .JDF
 using DataFrames
 
-function read_table(::JDFFormat, filename:: AbstractString; kwargs...):: DataFrame
+function read_table(::JDFFormat, filename:: AbstractString; kwargs...)
     return loadjdf(filename; kwargs...)
 end
 

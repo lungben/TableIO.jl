@@ -15,3 +15,4 @@ ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
 
 [compat]
 Parquet = "0.7"
+JDF = "0.3"
