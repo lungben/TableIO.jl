@@ -63,11 +63,7 @@ JSON Format:
 Binary Formats:
 
     df = DataFrame(read_table("my_data.jdf"); copycols=false) # JDF (compressed binary format)
-
-    using Parquet
-    mapping = Dict(["col_3"] => (String, Parquet.logical_string)) # String field types must be mapped to appropriate data types
-    df = DataFrame(read_table("my_data.parquet"; map_logical_types=mapping); copycols=false) # Parquet
-
+    df = DataFrame(read_table("my_data.parquet"); copycols=false) # Parquet
     df = DataFrame(read_table("my_data.arrow"); copycols=false) # Apache Arrow
 
 Excel:
@@ -125,7 +121,7 @@ Binary Formats:
 
     write_table!("my_data.jdf", df) # JDF (compressed binary format)
     write_table!("my_data.parquet", df) # Parquet - note that Date element type is not supported yet
-    write_table!("my_data.parquet", df) # Apache Arrow
+    write_table!("my_data.arrow", df) # Apache Arrow
 
 Excel:
 

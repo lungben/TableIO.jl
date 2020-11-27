@@ -1,5 +1,3 @@
-using Parquet
-
 @testset "File IO" begin
 
     @testset "CSV" begin
@@ -31,18 +29,16 @@ using Parquet
     @testset "Parquet" begin
         df_parquet = df[!, Not(:e)] # Parquet currently does not support Date element type
 
-        mapping = Dict(["c"] => (String, Parquet.logical_string), ["f"] => (String, Parquet.logical_string)) # String field types must be mapped to appropriate data types
         fname = joinpath(testpath, "test.parquet")
         write_table!(fname, df_parquet)
         @test filesize(fname) > 0
-        df_recovered = DataFrame(read_table(fname; map_logical_types=mapping); copycols=false)
+        df_recovered = DataFrame(read_table(fname); copycols=false)
         @test df_parquet == df_recovered
 
         fname = joinpath(testpath, "test2.parquet")
         write_table!(fname, nt)
         @test filesize(fname) > 0
-        mapping = Dict(["c"] => (String, Parquet.logical_string))
-        nt_recovered = read_table(fname; map_logical_types=mapping)
+        nt_recovered = read_table(fname)
         @test DataFrame(nt) == DataFrame(nt_recovered)
     end
 
