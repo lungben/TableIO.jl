@@ -151,4 +151,6 @@
         df_recovered = DataFrame(read_table(name3); copycols=false)
         @test df == df_recovered
     end
+
+    include("test_pandas.jl") # could only be tested if Pandas.jl, Python, Pandas and PyTables are installed
 end

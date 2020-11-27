@@ -20,6 +20,7 @@ struct SPSSFormat <: AbstractFormat end
 struct SASFormat <: AbstractFormat end
 struct JSONFormat <: AbstractFormat end
 struct ArrowFormat <: AbstractFormat end
+struct HDF5Format <: AbstractFormat end
 
 # data base only formats - not completely integrated yet
 struct PostgresFormat <: AbstractFormat end
@@ -47,6 +48,8 @@ const FILE_EXTENSIONS = Dict(
     "sas7bdat" => SASFormat,
     "json" => JSONFormat,
     "arrow" => ArrowFormat,
+    "hdf" => HDF5Format,
+    "hdf5" => HDF5Format,
 )
 
 # definition of the required packages for the specific formats
@@ -64,6 +67,7 @@ const PACKAGE_REQUIREMENTS = Dict{DataType, Union{Symbol, Vector{Symbol}}}(
     JSONFormat => :JSONTables,
     ArrowFormat => :Arrow,
     PostgresFormat => [:LibPQ, :CSV],
+    HDF5Format => :Pandas,
 )
 
 ## Dispatching on file extensions
@@ -193,6 +197,7 @@ function __init__()
     @require SQLite = "0aa819cd-b072-5ff4-a722-6bc24af294d9" include("sqlite.jl")
     @require JSONTables = "b9914132-a727-11e9-1322-f18e41205b0b" include("json.jl")
     @require Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45" include("arrow.jl")
+    @require Pandas = "eadc2687-ae89-51f9-a5d9-86b5a6373a9c" include("pandas.jl")
 end
 
 ## Utilities

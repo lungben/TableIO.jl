@@ -1,12 +1,16 @@
 [deps]
 Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 JDF = "babc3d20-cd49-4f60-a736-a8f9c08892d3"
 JSONTables = "b9914132-a727-11e9-1322-f18e41205b0b"
 LibPQ = "194296ae-ab2e-5f79-8cd4-7183a0a5a0d1"
+Pandas = "eadc2687-ae89-51f9-a5d9-86b5a6373a9c"
 Parquet = "626c502c-15b0-58ad-a749-f091afb673ae"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 SQLite = "0aa819cd-b072-5ff4-a722-6bc24af294d9"
 StatFiles = "1463e38c-9381-5320-bcd4-4134955f093a"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
@@ -14,5 +18,5 @@ XLSX = "fdbf4ff8-1666-58a4-91e7-1b58723a45e0"
 ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
 
 [compat]
-Parquet = "0.7"
 JDF = "0.3"
+Parquet = "0.7"

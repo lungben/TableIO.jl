@@ -11,6 +11,15 @@ using Dates
 # using JSONTables
 # using Arrow
 
+
+function compare_df_ignore_order(df1:: DataFrame, df2:: DataFrame)
+    sort(names(df1)) == sort(names(df2)) || return false
+    for col in names(df1)
+        df1[!, col] == df2[!, col] || return false
+    end
+    return true
+end
+
 testpath = mktempdir()
 println("Temporary directory for test files: ", testpath)
 

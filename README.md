@@ -22,6 +22,22 @@ This package is "intelligent" in this sense that it automatically selects the ri
 The underlying packages are not direct dependencies of TableIO and are therefore not installed automatically with it.
 This is for reduction of installation size and package load time.
 
+Additional formats are supported via [Pandas.jl](https://github.com/JuliaPy/Pandas.jl):
+
+* HDF5 (requires PyTables installed on Python side)
+
+Note that this requires to have, in addition to Pandas.jl, Python, Pandas and PyTables installed.
+
+These requirements can be installed using the following Julia commands:
+
+    ENV["PYTHON"] = "" # to use a separate Conda environment for Julia
+    using Pkg
+    Pkg.add(["PyCall", "Conda", "Pandas"])
+    Pkg.build("PyCall")
+    using Conda
+    Conda.add("pandas")
+    Conda.add("pytables")
+
 ## Installation
 
     using Pkg
