@@ -152,5 +152,5 @@
         @test df == df_recovered
     end
 
-    # include("test_pandas.jl") # could only be tested if Pandas.jl, Python, Pandas and PyTables are installed
+    include("test_pandas.jl") # could only be tested if Pandas.jl, Python, Pandas and PyTables are installed
 end

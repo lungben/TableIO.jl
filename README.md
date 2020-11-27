@@ -26,6 +26,17 @@ Additional formats are supported via [Pandas.jl](https://github.com/JuliaPy/Pand
 
 * HDF5 (requires PyTables installed on Python side)
 
+Note that this requires to have, in addition to Pandas.jl, Python, Pandas and PyTables installed.
+
+These requirements can be installed using the following Julia commands:
+
+    ENV["PYTHON"] = "" # to use a separate Conda environment for Julia
+    using Pkg
+    Pkg.add(["PyCall", "Conda", "Pandas"])
+    Pkg.build("PyCall")
+    using Conda
+    Conda.add("pandas")
+    Conda.add("pytables")
 
 ## Installation
 

@@ -1,9 +1,10 @@
-
-# ENV["PYTHON"] = ""
-# using Pkg
-# Pkg.build("PyCall")
-# using Conda
-# Conda.add("pandas pytables")
+# install Python dependencies
+ENV["PYTHON"] = ""
+using Pkg
+Pkg.build("PyCall")
+using Conda
+Conda.add("pandas")
+Conda.add("pytables")
 
 
 @testset "HDF5" begin
