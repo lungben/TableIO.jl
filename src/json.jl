@@ -1,23 +1,23 @@
 using .JSONTables
 
-function read_table(::JSONFormat, filename:: AbstractString)
+function read_table(::TableIOInterface.JSONFormat, filename:: AbstractString)
     local output
     open(filename, "r") do file
-        output = read_table(JSONFormat(), file)
+        output = read_table(TableIOInterface.JSONFormat(), file)
     end
     return output 
 end
 
-read_table(::JSONFormat, io:: IO) = jsontable(io)
+read_table(::TableIOInterface.JSONFormat, io:: IO) = jsontable(io)
 
-function write_table!(::JSONFormat, filename:: AbstractString, table; orientation=:objecttable)
+function write_table!(::TableIOInterface.JSONFormat, filename:: AbstractString, table; orientation=:objecttable)
     open(filename, "w") do file
-        write_table!(JSONFormat(), file, table; orientation=orientation)
+        write_table!(TableIOInterface.JSONFormat(), file, table; orientation=orientation)
     end
     nothing
 end
 
-function write_table!(::JSONFormat, io:: IO, table; orientation=:objecttable)
+function write_table!(::TableIOInterface.JSONFormat, io:: IO, table; orientation=:objecttable)
     _checktable(table)
     if orientation == :objecttable
         export_func = JSONTables.objecttable
