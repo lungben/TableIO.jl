@@ -132,7 +132,6 @@ function write_table!(filename:: AbstractString, table, args...; kwargs...)
             rethrow()
         end
     end
-    _import_package(data_type)
     nothing
 end
 
