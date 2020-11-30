@@ -9,7 +9,7 @@ using CSV
 """
 This method assumes that there is a single data file inside the zip file. If this is not the case, an error is raised.
 """
-function read_table(::ZippedFormat, zip_filename:: AbstractString; kwargs...)
+function read_table(::TableIOInterface.ZippedFormat, zip_filename:: AbstractString; kwargs...)
     zf = ZipFile.Reader(zip_filename)
     length(zf.files) == 1 || error("The zip file must contain exactly one file")
     file_in_zip = zf.files[1]
@@ -21,7 +21,7 @@ end
 """
 This method supports multiple files inside the zip file. The name of the file inside the zip file must be given.
 """
-function read_table(::ZippedFormat, zip_filename:: AbstractString, csv_filename:: AbstractString; kwargs...)
+function read_table(::TableIOInterface.ZippedFormat, zip_filename:: AbstractString, csv_filename:: AbstractString; kwargs...)
     zf = ZipFile.Reader(zip_filename)
     file_in_zip = filter(x->x.name == csv_filename, zf.files)[1]
     output = read_table(file_in_zip; kwargs...)
@@ -38,17 +38,17 @@ end
 """
 The csv file inside the zip archive is named analogue to the zip file, but with `.csv` extension.
 """
-function write_table!(::ZippedFormat, zip_filename:: AbstractString, table; kwargs...)
+function write_table!(::TableIOInterface.ZippedFormat, zip_filename:: AbstractString, table; kwargs...)
     _checktable(table)
     csv_filename = string(splitext(basename(zip_filename))[1], ".csv")
-    write_table!(ZippedFormat(), zip_filename, csv_filename, table; kwargs...)
+    write_table!(TableIOInterface.ZippedFormat(), zip_filename, csv_filename, table; kwargs...)
     nothing
 end
 
 """
 Writing as arbitrary file name and file format in a zip file.
 """
-function write_table!(::ZippedFormat, zip_filename:: AbstractString, filename_in_zip:: AbstractString, table; kwargs...)
+function write_table!(::TableIOInterface.ZippedFormat, zip_filename:: AbstractString, filename_in_zip:: AbstractString, table; kwargs...)
     _checktable(table)
     zf = ZipFile.Writer(zip_filename)
     file_in_zip = ZipFile.addfile(zf, filename_in_zip, method=ZipFile.Deflate)

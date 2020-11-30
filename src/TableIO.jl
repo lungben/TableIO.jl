@@ -2,72 +2,33 @@ module TableIO
 
 export read_table, write_table!, read_sql
 
+using TableIOInterface
 using Tables, Requires, Suppressor
 using DataFrames # required for multiple file types, therefore currently not optional
 
-## definition of file formats and extensions
-
-abstract type AbstractFormat end
-
-struct CSVFormat <: AbstractFormat end
-struct ZippedFormat <: AbstractFormat end
-struct JDFFormat <: AbstractFormat end
-struct ParquetFormat <: AbstractFormat end
-struct ExcelFormat <: AbstractFormat end
-struct SQLiteFormat <: AbstractFormat end
-struct StataFormat <: AbstractFormat end
-struct SPSSFormat <: AbstractFormat end
-struct SASFormat <: AbstractFormat end
-struct JSONFormat <: AbstractFormat end
-struct ArrowFormat <: AbstractFormat end
-struct HDF5Format <: AbstractFormat end
-
-# data base only formats - not completely integrated yet
-struct PostgresFormat <: AbstractFormat end
-
 # specify if a reader accepts an io buffer as input or if creation of a temp file is required
-supports_io_input(::AbstractFormat) = false
+supports_io_input(::TableIOInterface.AbstractFormat) = false
 
-supports_io_input(::CSVFormat) = true
-supports_io_input(::JSONFormat) = true
-supports_io_input(::ArrowFormat) = true
-
-# mapping of file extensions to table file formats
-# multiple extensions can be mapped to the same format
-const FILE_EXTENSIONS = Dict(
-    "zip" => ZippedFormat,
-    "csv" => CSVFormat,
-    "jdf" => JDFFormat,
-    "parquet" => ParquetFormat,
-    "xlsx" => ExcelFormat,
-    "db" => SQLiteFormat,
-    "sqlite" => SQLiteFormat,
-    "sqlite3" => SQLiteFormat,
-    "dta" => StataFormat,
-    "sav" => SPSSFormat,
-    "sas7bdat" => SASFormat,
-    "json" => JSONFormat,
-    "arrow" => ArrowFormat,
-    "hdf" => HDF5Format,
-    "hdf5" => HDF5Format,
-)
+supports_io_input(::TableIOInterface.CSVFormat) = true
+supports_io_input(::TableIOInterface.JSONFormat) = true
+supports_io_input(::TableIOInterface.ArrowFormat) = true
 
 # definition of the required packages for the specific formats
 # if a format requires multiple packages, define them as a list
 const PACKAGE_REQUIREMENTS = Dict{DataType, Union{Symbol, Vector{Symbol}}}(
-    CSVFormat => :CSV,
-    ZippedFormat => :ZipFile,
-    JDFFormat => :JDF,
-    ParquetFormat => :Parquet,
-    ExcelFormat => :XLSX,
-    SQLiteFormat => :SQLite,
-    StataFormat => :StatFiles,
-    SPSSFormat => :StatFiles,
-    SASFormat => :StatFiles,
-    JSONFormat => :JSONTables,
-    ArrowFormat => :Arrow,
-    PostgresFormat => [:LibPQ, :CSV],
-    HDF5Format => :Pandas,
+    TableIOInterface.CSVFormat => :CSV,
+    TableIOInterface.ZippedFormat => :ZipFile,
+    TableIOInterface.JDFFormat => :JDF,
+    TableIOInterface.ParquetFormat => :Parquet,
+    TableIOInterface.ExcelFormat => :XLSX,
+    TableIOInterface.SQLiteFormat => :SQLite,
+    TableIOInterface.StataFormat => :StatFiles,
+    TableIOInterface.SPSSFormat => :StatFiles,
+    TableIOInterface.SASFormat => :StatFiles,
+    TableIOInterface.JSONFormat => :JSONTables,
+    TableIOInterface.ArrowFormat => :Arrow,
+    TableIOInterface.PostgresFormat => [:LibPQ, :CSV],
+    TableIOInterface.HDF5Format => :Pandas,
 )
 
 ## Dispatching on file extensions
@@ -202,13 +163,10 @@ end
 
 ## Utilities
 
-_get_file_extension(filename) = lowercase(splitext(filename)[2][2:end])
-get_file_type(filename) = FILE_EXTENSIONS[_get_file_extension(filename)]()
-
-get_package_requirements(::T) where {T <: AbstractFormat} = PACKAGE_REQUIREMENTS[T]
+get_package_requirements(::T) where {T <: TableIOInterface.AbstractFormat} = PACKAGE_REQUIREMENTS[T]
 get_package_requirements(filename:: AbstractString) = get_package_requirements(get_file_type(filename))
 
-function _import_package(t::T) where {T <: AbstractFormat}
+function _import_package(t::T) where {T <: TableIOInterface.AbstractFormat}
     pkg_name = get_package_requirements(t)
     _import_package(pkg_name)
 end

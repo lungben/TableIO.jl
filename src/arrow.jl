@@ -4,11 +4,11 @@
 
 using .Arrow
 
-function read_table(::ArrowFormat, filename:: Union{AbstractString, IO}; kwargs...)
+function read_table(::TableIOInterface.ArrowFormat, filename:: Union{AbstractString, IO}; kwargs...)
     return Arrow.Table(filename; kwargs...)
 end
 
-function write_table!(::ArrowFormat, filename:: Union{AbstractString, IO}, table; kwargs...)
+function write_table!(::TableIOInterface.ArrowFormat, filename:: Union{AbstractString, IO}, table; kwargs...)
     Arrow.write(filename, table; kwargs...)
     nothing
 end
