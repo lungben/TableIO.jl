@@ -8,9 +8,9 @@ import DataFrames
 """
 For reading data, Pandas DataFrames are converted to Julia DataFrames.
 """
-function read_table(::TableIOInterface.HDF5Format, filename, key; kwargs...):: DataFrames.DataFrame
+function read_table(::TableIOInterface.HDF5Format, filename, key; kwargs...):: Pandas.DataFrame
     df_pandas = Pandas.read_hdf(filename, key; kwargs)
-    return DataFrames.DataFrame(df_pandas)
+    return df_pandas
 end
 
 function write_table!(::TableIOInterface.HDF5Format, filename, key, table:: Pandas.DataFrame; kwargs...)

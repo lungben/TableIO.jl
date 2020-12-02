@@ -18,6 +18,6 @@ Conda.add("pytables")
     fname = joinpath(testpath, "test2.hdf")
     write_table!(fname, "my_data", nt)
     @test filesize(fname) > 0
-    nt_recovered = read_table(fname, "my_data")
+    nt_recovered = DataFrame(read_table(fname, "my_data"); copycols=false)
     @test compare_df_ignore_order(DataFrame(nt), nt_recovered)
 end
