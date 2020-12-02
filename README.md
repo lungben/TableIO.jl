@@ -82,6 +82,8 @@ Binary Formats:
     df = DataFrame(read_table("my_data.parquet"); copycols=false) # Parquet
     df = DataFrame(read_table("my_data.arrow"); copycols=false) # Apache Arrow
 
+    df = DataFrame(read_table("my_data.hdf", "key"); copycols=false) # HDF5 (via Pandas)
+
 Excel:
 
     df = DataFrame(read_table("my_data.xlsx"); copycols=false) # imports 1st sheet
@@ -138,6 +140,8 @@ Binary Formats:
     write_table!("my_data.jdf", df) # JDF (compressed binary format)
     write_table!("my_data.parquet", df) # Parquet - note that Date element type is not supported yet
     write_table!("my_data.arrow", df) # Apache Arrow
+
+    write_table!("my_data.hdf", "key", df) # HDF5 (via Pandas)
 
 Excel:
 
