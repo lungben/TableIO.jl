@@ -59,6 +59,7 @@
         fname = joinpath(testpath, "test.xlsx")
         write_table!(fname, "test_sheet_42", df)
         @test filesize(fname) > 0
+        @test list_tables(fname) == ["test_sheet_42"]
         df_recovered = DataFrame(read_table(fname); copycols=false)
         @test df == df_recovered
         fname = joinpath(testpath, "test2.xlsx")
@@ -108,6 +109,7 @@
         fname = joinpath(testpath, "test.zip")
         write_table!(fname, df)
         @test filesize(fname) > 0
+        @test list_tables(fname) == ["test.csv"]
         df_recovered = DataFrame(read_table(fname); copycols=false)
         @test df == df_recovered
 

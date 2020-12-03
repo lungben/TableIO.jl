@@ -1,6 +1,6 @@
 module TableIO
 
-export read_table, write_table!, read_sql
+export read_table, write_table!, read_sql, list_tables
 
 using TableIOInterface
 using Tables, Requires, Suppressor
@@ -104,6 +104,28 @@ function read_table(file_picker:: Dict, args...; kwargs...)
             rethrow()
         end
     end
+end
+"""
+    list_tables(filename:: AbstractString)
+
+Returns a list of all tables inside a file.
+"""
+function list_tables(filename:: AbstractString)
+    data_type = get_file_type(filename)
+    TableIOInterface.multiple_tables(data_type) || error("The data type $data_type does not support multiple tables per file.")
+    try
+        # to speed up the standard case (format specific package is imported), this is tried first
+        return list_tables(data_type, filename)
+    catch ex
+        if ex isa MethodError
+            # import format specific package and invoke latest version of the function to avoid world age issues
+            _import_package(data_type)
+            return Base.invokelatest(list_tables, data_type, filename)
+        else
+            rethrow()
+        end
+    end
+    
 end
 
 """

@@ -28,3 +28,10 @@ write_table!(::TableIOInterface.ExcelFormat, filename:: AbstractString, table; k
 
 # XLSX supports only DataFrames, not arbitrary Tables.jl inputs. For export, the table is converted to a DataFrame first.
 write_table!(::TableIOInterface.ExcelFormat, filename:: AbstractString, sheetname:: AbstractString, table; kwargs...) = write_table!(TableIOInterface.ExcelFormat(), filename:: AbstractString, sheetname:: AbstractString, DataFrame(table); kwargs...)
+
+function list_tables(::TableIOInterface.ExcelFormat, filename:: AbstractString)
+    xf = XLSX.readxlsx(filename)
+    files = XLSX.sheetnames(xf)
+    close(xf)
+    return files |> sort
+end

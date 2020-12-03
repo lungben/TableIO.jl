@@ -57,3 +57,10 @@ function write_table!(::TableIOInterface.ZippedFormat, zip_filename:: AbstractSt
     close(zf)
     nothing
 end
+
+function list_tables(::TableIOInterface.ZippedFormat, filename:: AbstractString)
+    zf = ZipFile.Reader(filename)
+    files = [f.name for f in zf.files]
+    close(zf)
+    return files |> sort
+end
