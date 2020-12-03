@@ -19,3 +19,10 @@ function write_table!(::TableIOInterface.HDF5Format, filename, key, table:: Pand
 end
 
 write_table!(::TableIOInterface.HDF5Format, filename, key, table; kwargs...) = write_table!(TableIOInterface.HDF5Format(), filename, key, Pandas.DataFrame(table); kwargs...)
+
+function list_tables(::TableIOInterface.HDF5Format, filename:: AbstractString)
+    hdf = Pandas.HDFStore(filename)
+    files = keys(hdf)
+    close(hdf)
+    return files |> sort
+end
