@@ -11,11 +11,14 @@ This method assumes that there is a single data file inside the zip file. If thi
 """
 function read_table(::TableIOInterface.ZippedFormat, zip_filename:: AbstractString; kwargs...)
     zf = ZipFile.Reader(zip_filename)
-    length(zf.files) == 1 || error("The zip file must contain exactly one file")
-    file_in_zip = zf.files[1]
-    output = read_table(file_in_zip; kwargs...)
-    close(zf)
-    return output
+    try
+        length(zf.files) == 1 || error("The zip file must contain exactly one file")
+        file_in_zip = zf.files[1]
+        output = read_table(file_in_zip; kwargs...)
+        return output
+    finally
+        close(zf)
+    end
 end
 
 """
@@ -23,10 +26,13 @@ This method supports multiple files inside the zip file. The name of the file in
 """
 function read_table(::TableIOInterface.ZippedFormat, zip_filename:: AbstractString, csv_filename:: AbstractString; kwargs...)
     zf = ZipFile.Reader(zip_filename)
-    file_in_zip = filter(x->x.name == csv_filename, zf.files)[1]
-    output = read_table(file_in_zip; kwargs...)
-    close(zf)
-    return output
+    try
+        file_in_zip = filter(x->x.name == csv_filename, zf.files)[1]
+        output = read_table(file_in_zip; kwargs...)
+        return output
+    finally
+        close(zf)
+    end
 end
 
 function read_table(file_in_zip:: ZipFile.ReadableFile; kwargs...)
@@ -51,16 +57,22 @@ Writing as arbitrary file name and file format in a zip file.
 function write_table!(::TableIOInterface.ZippedFormat, zip_filename:: AbstractString, filename_in_zip:: AbstractString, table; kwargs...)
     _checktable(table)
     zf = ZipFile.Writer(zip_filename)
-    file_in_zip = ZipFile.addfile(zf, filename_in_zip, method=ZipFile.Deflate)
-    file_type_in_zip = get_file_type(filename_in_zip)
-    write_table!(file_type_in_zip, file_in_zip, table; kwargs...)
-    close(zf)
+    try
+        file_in_zip = ZipFile.addfile(zf, filename_in_zip, method=ZipFile.Deflate)
+        file_type_in_zip = get_file_type(filename_in_zip)
+        write_table!(file_type_in_zip, file_in_zip, table; kwargs...)
+    finally
+        close(zf)
+    end
     nothing
 end
 
 function list_tables(::TableIOInterface.ZippedFormat, filename:: AbstractString)
     zf = ZipFile.Reader(filename)
-    files = [f.name for f in zf.files]
-    close(zf)
-    return files |> sort
+    try
+        files = [f.name for f in zf.files]
+        return files |> sort
+    finally
+        close(zf)
+    end
 end

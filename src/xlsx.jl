@@ -5,16 +5,24 @@
 using .XLSX
 
 function read_table(::TableIOInterface.ExcelFormat, filename:: AbstractString, sheetname:: AbstractString; kwargs...)
-    f = XLSX.readxlsx(filename)
-    sheet = f[sheetname]
-    return XLSX.eachtablerow(sheet)
+    xf = XLSX.readxlsx(filename)
+    try
+        sheet = xf[sheetname]
+        return XLSX.eachtablerow(sheet)
+    finally
+        close(xf)
+    end
 end
 
 function read_table(::TableIOInterface.ExcelFormat, filename:: AbstractString; kwargs...)
-    f = XLSX.readxlsx(filename)
-    sheet = first(f.workbook.sheets)
-    return DataFrame(XLSX.eachtablerow(sheet); copycols=false) # this would be no valid Table.jl output if not converted to DataFrame
-end   
+    xf = XLSX.readxlsx(filename)
+    try
+        sheet = first(xf.workbook.sheets)
+        return DataFrame(XLSX.eachtablerow(sheet); copycols=false) # this would be no valid Table.jl output if not converted to DataFrame
+    finally
+        close(xf)
+    end
+end
 
 
 function write_table!(::TableIOInterface.ExcelFormat, filename:: AbstractString, sheetname:: AbstractString, table:: DataFrame; kwargs...)
@@ -31,7 +39,10 @@ write_table!(::TableIOInterface.ExcelFormat, filename:: AbstractString, sheetnam
 
 function list_tables(::TableIOInterface.ExcelFormat, filename:: AbstractString)
     xf = XLSX.readxlsx(filename)
-    files = XLSX.sheetnames(xf)
-    close(xf)
-    return files |> sort
+    try
+        files = XLSX.sheetnames(xf)
+        return files |> sort
+    finally
+        close(xf)
+    end
 end

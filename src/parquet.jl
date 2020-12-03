@@ -12,7 +12,11 @@ Alternatively, the string columns can be given
 """
 function read_table(::TableIOInterface.ParquetFormat, filename; kwargs...)
     parfile = Parquet.File(filename; kwargs...)
-    return RecordCursor(parfile)
+    try
+        return RecordCursor(parfile)
+    finally 
+        close(parfile)
+    end
 end
 
 function write_table!(::TableIOInterface.ParquetFormat, filename, table; kwargs...)
