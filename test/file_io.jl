@@ -63,7 +63,7 @@
         df_recovered = DataFrame(read_table(fname); copycols=false)
         @test df == df_recovered
         fname = joinpath(testpath, "test2.xlsx")
-        write_table!(fname, nt)
+        write_table!(fname, "sheet_1", nt)
         @test filesize(fname) > 0
         nt_recovered = read_table(fname, "sheet_1") # default name
         @test DataFrame(nt) == DataFrame(nt_recovered)
@@ -137,7 +137,7 @@
         name2 = joinpath(testpath, "testx.jdf")
         name3 = joinpath(testpath, "testx.xlsx")
         write_table!(name2, read_table(name1))
-        write_table!(name3, read_table(name2))
+        write_table!(name3, "my_sheet", read_table(name2))
         df_recovered = DataFrame(read_table(name3); copycols=false)
         @test df == df_recovered
 

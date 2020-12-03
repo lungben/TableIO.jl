@@ -149,7 +149,6 @@ Binary Formats:
 
 Excel:
 
-    write_table!("my_data.xlsx", df) # creates sheet with default name
     write_table!("my_data.xlsx", "test_sheet_42", df) # creates sheet with defined name
 
 SQLite:
