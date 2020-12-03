@@ -6,7 +6,12 @@ using .SQLite
 
 function read_table(::TableIOInterface.SQLiteFormat, filename:: AbstractString, tablename:: AbstractString; kwargs...)
     db = SQLite.DB(filename)
-    return read_table(db, tablename; kwargs...)
+    try
+        result = read_table(db, tablename; kwargs...)
+        return result
+    finally
+        close(db)
+    end
 end
 
 """
@@ -16,8 +21,9 @@ Reads the content of a whole table and returns a Tables.jl compatible object.
 This method takes an instance of an SQLite database connection as input.
 """
 function read_table(db:: SQLite.DB, tablename:: AbstractString; kwargs...)
-     _checktablename(tablename)
-    return DBInterface.execute(db, "select * from $tablename") # SQL parameters cannot be used for table names
+    _checktablename(tablename)
+    result = DBInterface.execute(db, "select * from $tablename") # SQL parameters cannot be used for table names
+    return result
 end
 
 read_sql(db:: SQLite.DB, sql:: AbstractString) = DBInterface.execute(db, sql)
@@ -25,7 +31,12 @@ read_sql(db:: SQLite.DB, sql:: AbstractString) = DBInterface.execute(db, sql)
 function write_table!(::TableIOInterface.SQLiteFormat, filename:: AbstractString, tablename:: AbstractString, table; kwargs...)
     _checktable(table)
     db = SQLite.DB(filename)
-    write_table!(db, tablename, table; kwargs...)
+    try
+        write_table!(db, tablename, table; kwargs...)
+    finally
+        close(db)
+    end
+    nothing
 end
 
 """
@@ -43,3 +54,12 @@ function write_table!(db:: SQLite.DB, tablename:: AbstractString, table; kwargs.
     nothing
 end
 
+function list_tables(::TableIOInterface.SQLiteFormat, filename:: AbstractString)
+    db = SQLite.DB(filename)
+    try
+        files = SQLite.tables(db).name
+        return files |> sort
+    finally
+        close(db)
+    end
+end

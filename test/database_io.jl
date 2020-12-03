@@ -9,6 +9,7 @@ using LibPQ
 
         write_table!(db, "test1", df)
         @test filesize(fname) > 0
+        @test list_tables(fname) == ["test1"]
         df_recovered = DataFrame(read_table(fname, "test1"); copycols=false)
         @test df == df_recovered
         
