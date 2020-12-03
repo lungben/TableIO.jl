@@ -39,3 +39,11 @@ function write_table!(conn:: LibPQ.Connection, tablename:: AbstractString, table
     execute(conn, copyin)
     nothing
 end
+
+function list_tables(conn:: LibPQ.Connection)
+    res = execute(conn, """SELECT table_name
+         FROM information_schema.tables 
+         where table_type in ('LOCAL TEMPORARY', 'BASE TABLE') 
+         and table_schema not in ('pg_catalog', 'information_schema');""")
+    return collect(Tables.columntable(res).table_name) |> sort
+end

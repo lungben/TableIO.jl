@@ -19,6 +19,8 @@ using LibPQ
         write_table!(fname, "test2", nt)
         nt_recovered = read_table(db, "test2")
         @test DataFrame(nt) == DataFrame(nt_recovered)
+
+        @test list_tables(db) == ["test1", "test2"]
     end
 
     @testset "PostgreSQL" begin
@@ -49,6 +51,8 @@ using LibPQ
         write_table!(conn, "test2", nt)
         nt_recovered = read_table(conn, "test2")
         @test DataFrame(nt) == DataFrame(nt_recovered)
+
+        @test list_tables(conn) == ["test1", "test2"]
 
         close(conn)
     end

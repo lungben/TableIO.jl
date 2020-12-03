@@ -57,9 +57,13 @@ end
 function list_tables(::TableIOInterface.SQLiteFormat, filename:: AbstractString)
     db = SQLite.DB(filename)
     try
-        files = SQLite.tables(db).name
-        return files |> sort
+        return list_tables(db)
     finally
         close(db)
     end
+end
+
+function list_tables(db:: SQLite.DB)
+    files = SQLite.tables(db).name
+    return files |> sort
 end
