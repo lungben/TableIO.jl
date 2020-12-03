@@ -1,23 +1,23 @@
+# TableIO
+
 [![Build Status](https://travis-ci.com/lungben/TableIO.jl.svg?branch=master)](https://travis-ci.com/lungben/TableIO.jl)
 [![codecov](https://codecov.io/gh/lungben/TableIO.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/lungben/TableIO.jl)
-
-# TableIO
 
 A small "glue" package for reading and writing tabular data. It aims to provide a uniform api for reading and writing tabular data from and to multiple sources.
 This package is "intelligent" in this sense that it automatically selects the right reading / writing methods depending on the file extension.
 
 ## Supported Formats
 
-* CSV via https://github.com/JuliaData/CSV.jl (installed as core depencency of TableIO)
-* JSON via https://github.com/JuliaData/JSONTables.jl
-* Zipped CSV or JSON via https://github.com/fhs/ZipFile.jl
-* JDF via https://github.com/xiaodaigh/JDF.jl
-* Parquet via https://github.com/JuliaIO/Parquet.jl
-* Apache Arrow via https://github.com/JuliaData/Arrow.jl
-* Excel (xlsx) via https://github.com/felipenoris/XLSX.jl
-* SQLite via https://github.com/JuliaDatabases/SQLite.jl
-* PostgreSQL via https://github.com/invenia/LibPQ.jl - note that CSV.jl is required for PostgreSQL, too.
-* Read-only: Stata (dta), SPSS (dat) and SAS (sas7bdat) via https://github.com/queryverse/StatFiles.jl
+* CSV via <https://github.com/JuliaData/CSV.jl> (installed as core depencency of TableIO)
+* JSON via <https://github.com/JuliaData/JSONTables.jl>
+* Zipped CSV or JSON via <https://github.com/fhs/ZipFile.jl>
+* JDF via <https://github.com/xiaodaigh/JDF.jl>
+* Parquet via <https://github.com/JuliaIO/Parquet.jl>
+* Apache Arrow via <https://github.com/JuliaData/Arrow.jl>
+* Excel (xlsx) via <https://github.com/felipenoris/XLSX.jl>
+* SQLite via <https://github.com/JuliaDatabases/SQLite.jl>
+* PostgreSQL via <https://github.com/invenia/LibPQ.jl> - note that CSV.jl is required for PostgreSQL, too.
+* Read-only: Stata (dta), SPSS (dat) and SAS (sas7bdat) via <https://github.com/queryverse/StatFiles.jl>
 
 The underlying packages are not direct dependencies of TableIO and are therefore not installed automatically with it.
 This is for reduction of installation size and package load time.
@@ -110,6 +110,10 @@ StatFiles.jl integration:
     df = DataFrame(read_table("my_data.dta"); copycols=false) # Stata
     df = DataFrame(read_table("my_data.sav"); copycols=false) # SPSS
     df = DataFrame(read_table("my_data.sas7bdat"); copycols=false) # SAS
+
+For data formats supporting multiple tables inside a file, the function `list_tables` returns an alphabetically sorted list of table names.
+
+    table_names = list_tables(filename)
 
 ## Writing Data
 
