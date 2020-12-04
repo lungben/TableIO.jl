@@ -19,6 +19,8 @@ using LibPQ
         write_table!(fname, "test2", nt)
         nt_recovered = read_table(db, "test2")
         @test DataFrame(nt) == DataFrame(nt_recovered)
+        @test_logs (:warn, "File contains more than one table, the alphabetically first one is taken") df_recovered = DataFrame(read_table(fname); copycols=false) # fetch alphabetiacally first table
+        @test df == df_recovered
 
         @test list_tables(db) == ["test1", "test2"]
     end
