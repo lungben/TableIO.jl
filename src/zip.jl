@@ -6,14 +6,12 @@
 using .ZipFile
 using CSV
 
-"""
-This method assumes that there is a single data file inside the zip file. If this is not the case, an error is raised.
-"""
-function read_table(::TableIOInterface.ZippedFormat, zip_filename:: AbstractString; kwargs...)
+function read_table(t::TableIOInterface.ZippedFormat, zip_filename:: AbstractString; kwargs...)
     zf = ZipFile.Reader(zip_filename)
     try
-        length(zf.files) == 1 || error("The zip file must contain exactly one file")
-        file_in_zip = zf.files[1]
+        table_list = _list_tables(t, zf)
+        length(table_list) > 1 && @warn "File contains more than one table, the alphabetically first one is taken"
+        file_in_zip = filter(x->x.name == first(table_list), zf.files)[1]
         output = read_table(file_in_zip; kwargs...)
         return output
     finally
@@ -67,12 +65,13 @@ function write_table!(::TableIOInterface.ZippedFormat, zip_filename:: AbstractSt
     nothing
 end
 
-function list_tables(::TableIOInterface.ZippedFormat, filename:: AbstractString)
+function list_tables(t::TableIOInterface.ZippedFormat, filename:: AbstractString)
     zf = ZipFile.Reader(filename)
     try
-        files = [f.name for f in zf.files]
-        return files |> sort
+        return _list_tables(t, zf)
     finally
         close(zf)
     end
 end
+
+_list_tables(::TableIOInterface.ZippedFormat, zf) = [f.name for f in zf.files] |> sort

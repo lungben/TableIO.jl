@@ -14,6 +14,16 @@ function read_table(::TableIOInterface.SQLiteFormat, filename:: AbstractString, 
     end
 end
 
+function read_table(::TableIOInterface.SQLiteFormat, filename:: AbstractString; kwargs...)
+    db = SQLite.DB(filename)
+    try
+        result = read_table(db; kwargs...)
+        return result
+    finally
+        close(db)
+    end
+end
+
 """
     read_table(db:: SQLite.DB, tablename:: AbstractString; kwargs...)
 
@@ -24,6 +34,12 @@ function read_table(db:: SQLite.DB, tablename:: AbstractString; kwargs...)
     _checktablename(tablename)
     result = DBInterface.execute(db, "select * from $tablename") # SQL parameters cannot be used for table names
     return result
+end
+
+function read_table(db:: SQLite.DB; kwargs...)
+    table_list = list_tables(db)
+    length(table_list) > 1 && @warn "File contains more than one table, the alphabetically first one is taken"
+    return read_table(db, first(table_list); kwargs...)
 end
 
 read_sql(db:: SQLite.DB, sql:: AbstractString) = DBInterface.execute(db, sql)
