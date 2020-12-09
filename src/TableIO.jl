@@ -29,6 +29,7 @@ const PACKAGE_REQUIREMENTS = Dict{DataType, Union{Symbol, Vector{Symbol}}}(
     TableIOInterface.ArrowFormat => :Arrow,
     TableIOInterface.PostgresFormat => [:LibPQ, :CSV],
     TableIOInterface.HDF5Format => :Pandas,
+    TableIOInterface.JLD2Format => :JLD2,
 )
 
 ## Dispatching on file extensions
@@ -181,6 +182,7 @@ function __init__()
     @require JSONTables = "b9914132-a727-11e9-1322-f18e41205b0b" include("json.jl")
     @require Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45" include("arrow.jl")
     @require Pandas = "eadc2687-ae89-51f9-a5d9-86b5a6373a9c" include("pandas.jl")
+    @require JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819" include("jld2.jl")
 end
 
 ## Utilities

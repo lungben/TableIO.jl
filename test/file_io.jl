@@ -55,6 +55,16 @@
         @test DataFrame(nt) == DataFrame(nt_recovered)
     end
 
+    @testset "JDF2" begin
+        fname = joinpath(testpath, "test.jld2")
+        write_table!(fname, "table2", vcat(df, df))
+        write_table!(fname, "table1", df)
+        @test filesize(fname) > 0
+        df_recovered = DataFrame(read_table(fname); copycols=false)
+        @test df == df_recovered
+        @test list_tables(fname) == ["table1", "table2"]
+    end
+
     @testset "XLSX" begin
         fname = joinpath(testpath, "test.xlsx")
         write_table!(fname, "test_sheet_42", df)
