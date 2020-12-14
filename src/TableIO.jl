@@ -166,6 +166,8 @@ Returns the result of the SQL query as a Tables.jl compatible object.
 """
 function read_sql end
 
+include("julia.jl")
+
 ## conditional dependencies
 
 function __init__()

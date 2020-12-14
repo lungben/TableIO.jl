@@ -167,6 +167,15 @@ PostgreSQL:
 
 StatFiles.jl integration: `write_table!` is not supported.
 
+Additionally, it is possible to export tabular data into Julia code (`.jl` files):
+
+    write_table!("my_data.jl", "my_table", df)
+
+To read this data, the corresponding Julia source code file can be included:
+
+    include("my_data.jl")
+    @assert DataFrame(my_table) == df
+
 ## Conversions
 
 It is possible to pass the output of `read_table` directly as input to `write_table!` for converting tabular data between different formats:

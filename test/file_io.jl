@@ -103,6 +103,17 @@
         @test_throws ErrorException write_table!(fname, df, orientation=:xyz)
     end
 
+    @testset "Julia" begin
+        fname = joinpath(testpath, "test.jl")
+        write_table!(fname, "my_jl_table1", df)
+        write_table!(fname, "my_jl_table2", nt)
+        @test filesize(fname) > 0
+
+        include(fname)
+        @test df == DataFrame(my_jl_table1)
+        @test DataFrame(nt) == DataFrame(my_jl_table2)
+    end
+
     @testset "StatFiles" begin
         # test files taken from https://github.com/queryverse/StatFiles.jl
         df_recovered = DataFrame[]
