@@ -46,6 +46,7 @@ read_sql(db:: SQLite.DB, sql:: AbstractString) = DBInterface.execute(db, sql)
 
 function write_table!(::TableIOInterface.SQLiteFormat, filename:: AbstractString, tablename:: AbstractString, table; kwargs...)
     _checktable(table)
+    _checktablename(tablename)
     db = SQLite.DB(filename)
     try
         write_table!(db, tablename, table; kwargs...)
@@ -66,6 +67,7 @@ Note that this behavior is different to the one for PostgreSQL, where the table 
 """
 function write_table!(db:: SQLite.DB, tablename:: AbstractString, table; kwargs...)
     _checktable(table)
+    _checktablename(tablename)
     table |> SQLite.load!(db, tablename; kwargs...)
     nothing
 end

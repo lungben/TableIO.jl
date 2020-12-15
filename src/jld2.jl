@@ -16,6 +16,8 @@ function read_table(::TableIOInterface.JLD2Format, filename:: AbstractString; kw
 end
 
 function write_table!(::TableIOInterface.JLD2Format, filename:: AbstractString, tablename:: AbstractString, table; kwargs...)
+    _checktable(table)
+    _checktablename(tablename)
     JLD2.jldopen(filename, "a+") do file
         file[tablename] = table
     end

@@ -10,6 +10,8 @@ function _convert_to_named_tuple(table:: T) where {T <: AbstractArray{<: NamedTu
 end
 
 function write_table!(::TableIOInterface.JuliaFormat, filename:: AbstractString, tablename:: AbstractString, table)
+    _checktable(table)
+    _checktablename(tablename)
     table_as_tuple = _convert_to_named_tuple(table)
     open(filename, "a") do file
         println(file, tablename, " = ", table_as_tuple)

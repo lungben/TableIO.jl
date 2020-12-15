@@ -26,14 +26,15 @@ function read_table(t::TableIOInterface.ExcelFormat, filename:: AbstractString; 
     end
 end
 
-function write_table!(::TableIOInterface.ExcelFormat, filename:: AbstractString, sheetname:: AbstractString, table:: DataFrame; kwargs...)
+function write_table!(::TableIOInterface.ExcelFormat, filename:: AbstractString, tablename:: AbstractString, table:: DataFrame; kwargs...)
     _checktable(table)
-    XLSX.writetable(filename, table; overwrite=true, sheetname=sheetname, kwargs...)
+    _checktablename(tablename)
+    XLSX.writetable(filename, table; overwrite=true, sheetname=tablename, kwargs...)
     nothing
 end
 
 # XLSX supports only DataFrames, not arbitrary Tables.jl inputs. For export, the table is converted to a DataFrame first.
-write_table!(::TableIOInterface.ExcelFormat, filename:: AbstractString, sheetname:: AbstractString, table; kwargs...) = write_table!(TableIOInterface.ExcelFormat(), filename:: AbstractString, sheetname:: AbstractString, DataFrame(table); kwargs...)
+write_table!(::TableIOInterface.ExcelFormat, filename:: AbstractString, tablename:: AbstractString, table; kwargs...) = write_table!(TableIOInterface.ExcelFormat(), filename, tablename, DataFrame(table); kwargs...)
 
 function list_tables(t::TableIOInterface.ExcelFormat, filename:: AbstractString)
     xf = XLSX.readxlsx(filename)

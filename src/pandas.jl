@@ -22,12 +22,14 @@ function read_table(t::TableIOInterface.HDF5Format, filename; kwargs...):: Panda
     end
 end
 
-function write_table!(::TableIOInterface.HDF5Format, filename, key, table:: Pandas.DataFrame; kwargs...)
-    Pandas.to_hdf(table, filename, key; kwargs...)
+function write_table!(::TableIOInterface.HDF5Format, filename, tablename, table:: Pandas.DataFrame; kwargs...)
+    # for HDF5 files, the table name may contain a path, therefore _checktablename is not executed.
+    # Pandas.DataFrame has no Tables.jl compatible interface, therefore _checktable is not executed.
+    Pandas.to_hdf(table, filename, tablename; kwargs...)
     nothing
 end
 
-write_table!(::TableIOInterface.HDF5Format, filename, key, table; kwargs...) = write_table!(TableIOInterface.HDF5Format(), filename, key, Pandas.DataFrame(table); kwargs...)
+write_table!(::TableIOInterface.HDF5Format, filename, tablename, table; kwargs...) = write_table!(TableIOInterface.HDF5Format(), filename, tablename, Pandas.DataFrame(table); kwargs...)
 
 function list_tables(t::TableIOInterface.HDF5Format, filename:: AbstractString)
     hdf = Pandas.HDFStore(filename)
