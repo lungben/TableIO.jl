@@ -8,7 +8,7 @@ This package is "intelligent" in this sense that it automatically selects the ri
 
 ## Supported Formats
 
-* CSV via <https://github.com/JuliaData/CSV.jl> (installed as core depencency of TableIO)
+* CSV via <https://github.com/JuliaData/CSV.jl>
 * JSON via <https://github.com/JuliaData/JSONTables.jl>
 * Zipped CSV or JSON via <https://github.com/fhs/ZipFile.jl>
 * JDF via <https://github.com/xiaodaigh/JDF.jl>
