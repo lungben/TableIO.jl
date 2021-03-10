@@ -207,8 +207,6 @@ The PostgreSQL component requires a running PostgreSQL database for unit tests. 
 
 ## Disclaimer
 
-This package is still experimental.
-
 If you encounter warnings like
 
     ┌ Warning: Package TableIO does not have CSV in its dependencies:
@@ -219,6 +217,5 @@ If you encounter warnings like
     └ Loading CSV into TableIO from project dependency, future warnings for TableIO are suppressed.
 
 please ignore them.
-TableIO purposely has not included the libraries for the specific file formats as its own dependencies.
 
-This warning is usually suppressed, but it may appear again in a stacktrace e.g. if an import library is not installed.
+TableIO purposely has not included the libraries for the specific file formats as its own dependencies.
