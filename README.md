@@ -18,17 +18,12 @@ This package is "intelligent" in this sense that it automatically selects the ri
 * SQLite via <https://github.com/JuliaDatabases/SQLite.jl>
 * PostgreSQL via <https://github.com/invenia/LibPQ.jl> - note that CSV.jl is required for PostgreSQL, too.
 * Read-only: Stata (dta), SPSS (dat) and SAS (sas7bdat) via <https://github.com/queryverse/StatFiles.jl>
+* HDF5 (Pandas format) via [Pandas.jl](https://github.com/JuliaPy/Pandas.jl) - requires Python with Pandas and PyTables installed on Python side.
 
 The underlying packages are not direct dependencies of TableIO and are therefore not installed automatically with it.
 This is for reduction of installation size and package load time.
 
-Additional formats are supported via [Pandas.jl](https://github.com/JuliaPy/Pandas.jl):
-
-* HDF5 (requires PyTables installed on Python side)
-
-Note that this requires to have, in addition to Pandas.jl, Python, Pandas and PyTables installed.
-
-These requirements can be installed using the following Julia commands:
+For installation of the Python requirements for Pandas HDF5 use the following Julia commands:
 
     ENV["PYTHON"] = "" # to use a separate Conda environment for Julia
     using Pkg
