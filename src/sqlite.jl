@@ -6,22 +6,14 @@ using .SQLite
 
 function read_table(::TableIOInterface.SQLiteFormat, filename:: AbstractString, tablename:: AbstractString; kwargs...)
     db = SQLite.DB(filename)
-    try
-        result = read_table(db, tablename; kwargs...)
-        return result
-    finally
-        close(db)
-    end
+    result = read_table(db, tablename; kwargs...)
+    return result
 end
 
 function read_table(::TableIOInterface.SQLiteFormat, filename:: AbstractString; kwargs...)
     db = SQLite.DB(filename)
-    try
-        result = read_table(db; kwargs...)
-        return result
-    finally
-        close(db)
-    end
+    result = read_table(db; kwargs...)
+    return result
 end
 
 """
