@@ -3,7 +3,7 @@ module TableIO
 export read_table, write_table!, read_sql, list_tables
 
 using TableIOInterface
-using Tables, Requires, Suppressor
+using Tables, Requires
 using DataFrames # required for multiple file types, therefore currently not optional
 
 # specify if a reader accepts an io buffer as input or if creation of a temp file is required
@@ -204,23 +204,7 @@ function _import_package(pkg_names:: Vector{Symbol})
 end
 
 function _import_package(pkg_name:: Symbol)
-    # A warning is raised if a package is imported which is not a dependency of TableIO. This warning is suppressed.
-    # If the package is not installed, an error message is raised.
-    try
-        @suppress @eval import $pkg_name
-    catch ex
-        # If the package is not installed, the error message is swallowed by @suppress, but the warning message for a missing TableIO dependeny is raised.
-        # To get back the more helpful error message for a not installed package, it is regenerated below.
-        if ex isa ArgumentError
-            throw(ArgumentError("""
-                ERROR: ArgumentError: Package $pkg_name not found in current path:
-                - Run `import Pkg; Pkg.add("$pkg_name")` to install the $pkg_name package.
-                """))
-        else
-            rethrow()
-        end
-    end
-
+    @eval import $pkg_name    
     # note that it is required to use Base.invokelatest for calling any functionality depending on the imported package, unless one returns to global scope before.
 end
 
