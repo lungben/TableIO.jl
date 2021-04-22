@@ -158,13 +158,13 @@
         name2 = joinpath(testpath, "testx.jdf")
         name3 = joinpath(testpath, "testx.xlsx")
         write_table!(name2, read_table(name1))
-        write_table!(name3, "my_sheet", read_table(name2))
+        write_table!(name3, "my_sheet", DataFrame(read_table(name2)))
         df_recovered = DataFrame(read_table(name3); copycols=false)
         @test df == df_recovered
 
         # SQLite from JDF
         name4 = joinpath(testpath, "testx.db")
-        write_table!(name4, "my_table", read_table(name2))
+        write_table!(name4, "my_table", DataFrame(read_table(name2)))
         df_recovered = DataFrame(read_table(name3); copycols=false)
         @test df == df_recovered
 
