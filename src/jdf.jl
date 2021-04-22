@@ -6,11 +6,11 @@ using .JDF
 using DataFrames
 
 function read_table(::TableIOInterface.JDFFormat, filename:: AbstractString; kwargs...)
-    return loadjdf(filename; kwargs...)
+    return JDF.load(filename; kwargs...)
 end
 
 function write_table!(::TableIOInterface.JDFFormat, filename:: AbstractString, table:: DataFrame; kwargs...)
-    savejdf(filename, table; kwargs...)
+    JDF.save(filename, table; kwargs...)
     nothing
 end
 
