@@ -8,7 +8,7 @@ function read_table(::TableIOInterface.ExcelFormat, filename:: AbstractString, s
     xf = XLSX.readxlsx(filename)
     try
         sheet = xf[sheetname]
-        return XLSX.eachtablerow(sheet)
+        return XLSX.eachtablerow(sheet; kwargs...)
     finally
         close(xf)
     end
@@ -20,7 +20,7 @@ function read_table(t::TableIOInterface.ExcelFormat, filename:: AbstractString; 
         table_list = _list_tables(t, xf)
         length(table_list) > 1 && @warn "File contains more than one table, the alphabetically first one is taken"
         sheet = xf[first(table_list)]
-        return DataFrame(XLSX.eachtablerow(sheet); copycols=false) # this would be no valid Table.jl output if not converted to DataFrame
+        return DataFrame(XLSX.eachtablerow(sheet; kwargs...); copycols=false) # this would be no valid Table.jl output if not converted to DataFrame
     finally
         close(xf)
     end
