@@ -8,7 +8,7 @@ function read_table(::TableIOInterface.ExcelFormat, filename:: AbstractString, s
     xf = XLSX.readxlsx(filename)
     try
         sheet = xf[sheetname]
-        return XLSX.eachtablerow(sheet; kwargs...)
+        return _eachtablerow(sheet, kwargs)
     finally
         close(xf)
     end
@@ -20,9 +20,23 @@ function read_table(t::TableIOInterface.ExcelFormat, filename:: AbstractString; 
         table_list = _list_tables(t, xf)
         length(table_list) > 1 && @warn "File contains more than one table, the alphabetically first one is taken"
         sheet = xf[first(table_list)]
-        return XLSX.eachtablerow(sheet; kwargs...)
+        return _eachtablerow(sheet, kwargs)
     finally
         close(xf)
+    end
+end
+
+function _eachtablerow(sheet, kwargs)
+    if :columns in keys(kwargs)
+        columns = filter(kwargs) do x
+            first(x) == :columns
+        end |> first
+        remaining_kwargs = filter(kwargs) do x
+            first(x) != :columns
+        end
+        return XLSX.eachtablerow(sheet, columns.second; remaining_kwargs...)
+    else
+        return XLSX.eachtablerow(sheet; kwargs...)
     end
 end
 

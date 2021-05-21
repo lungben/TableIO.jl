@@ -72,6 +72,11 @@
         @test list_tables(fname) == ["test_sheet_42"]
         df_recovered = DataFrame(read_table(fname); copycols=false)
         @test df == df_recovered
+
+        # import specific columns
+        df_recovered = DataFrame(read_table(fname; columns="B:E"); copycols=false)
+        @test select(df, :b, :c, :d, :e) == df_recovered
+
         fname = joinpath(testpath, "test2.xlsx")
         write_table!(fname, "sheet_1", nt)
         @test filesize(fname) > 0
