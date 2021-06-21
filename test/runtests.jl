@@ -1,16 +1,8 @@
+using Base: UV_EAI_SERVICE
 using TableIO
 using Test
 using DataFrames
 using Dates
-
-# the following packages are imported automatically when a corresponding file type is used
-# using JDF
-# using XLSX
-# using StatFiles
-# using ZipFile
-# using JSONTables
-# using Arrow
-
 
 function compare_df_ignore_order(df1:: DataFrame, df2:: DataFrame)
     sort(names(df1)) == sort(names(df2)) || return false

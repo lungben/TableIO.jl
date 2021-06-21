@@ -1,6 +1,7 @@
 @testset "File IO" begin
 
     @testset "CSV" begin
+        using CSV
         fname = joinpath(testpath, "test.csv")
         write_table!(fname, df)
         @test filesize(fname) > 0
@@ -14,6 +15,7 @@
     end
 
     @testset "JDF" begin
+        using JDF
         fname = joinpath(testpath, "test.jdf")
         write_table!(fname, df)
         @test isdir(fname) # JDF creates a directory, not a single file
@@ -27,6 +29,7 @@
     end
 
     @testset "Parquet" begin
+        using Parquet
         df_parquet = df[!, Not(:e)] # Parquet currently does not support Date element type
 
         fname = joinpath(testpath, "test.parquet")
@@ -43,6 +46,7 @@
     end
 
     @testset "Arrow" begin
+        using Arrow
         fname = joinpath(testpath, "test.arrow")
         write_table!(fname, df)
         @test filesize(fname) > 0
@@ -55,7 +59,8 @@
         @test DataFrame(nt) == DataFrame(nt_recovered)
     end
 
-    @testset "JDF2" begin
+    @testset "JLD2" begin
+        using JLD2
         fname = joinpath(testpath, "test.jld2")
         write_table!(fname, "table2", vcat(df, df))
         write_table!(fname, "table1", df)
@@ -66,6 +71,7 @@
     end
 
     @testset "XLSX" begin
+        using XLSX
         fname = joinpath(testpath, "test.xlsx")
         write_table!(fname, "test_sheet_42", df)
         @test filesize(fname) > 0
@@ -85,6 +91,7 @@
     end
 
     @testset "JSON" begin
+        using JSONTables
         fname = joinpath(testpath, "test_obj.json")
         write_table!(fname, df, orientation=:objecttable)
         @test filesize(fname) > 0
@@ -120,6 +127,7 @@
     end
 
     @testset "StatFiles" begin
+        using StatFiles
         # test files taken from https://github.com/queryverse/StatFiles.jl
         df_recovered = DataFrame[]
         for ext in ("dta", "sav", "sas7bdat")
@@ -132,6 +140,7 @@
     end
 
     @testset "zipped" begin
+        using ZipFile
         fname = joinpath(testpath, "test.zip")
         write_table!(fname, df)
         @test filesize(fname) > 0
@@ -158,6 +167,7 @@
     end
 
     @testset "conversions" begin
+        using SQLite
         # file formats
         name1 = joinpath(testpath, "test.zip")
         name2 = joinpath(testpath, "testx.jdf")

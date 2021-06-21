@@ -10,6 +10,7 @@ Conda.add("pytables")
 
 
 @testset "HDF5" begin
+    import Pandas
     fname = joinpath(testpath, "test.hdf")
     write_table!(fname, "/data", df)
     @test filesize(fname) > 0

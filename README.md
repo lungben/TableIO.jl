@@ -35,17 +35,15 @@ For installation of the Python requirements for Pandas HDF5 use the following Ju
 
 ## Installation
 
-    using Pkg
-    pkg"add https://github.com/lungben/TableIO.jl"
+    ] add TableIO
     using TableIO
 
-Before using a specific format, the corresponding package needs to be installed:
+Before using a specific format, the corresponding package needs to be installed and imported:
 
-    Pkg.add("JDF")
+    ] add JDF
+    import JDF # or using JDF
 
-When using `read_table` or `write_table!` with a specific file extension, TableIO automatically imports the corresponding library (if it is installed) and loads the corresponding wrapper code (using Requires.jl).
-
-If the file format specific library is not installed, an error message is raised.
+If the file format specific library is not imported and / or installed, an error message is raised.
 
 ## Reading Data
 
@@ -59,13 +57,13 @@ reads a data source (file or database) and returns a Table.jl interface, e.g. fo
 
 CSV Format:
 
+    using CSV
     df = DataFrame(read_table("my_data.csv"); copycols=false) # Keyword arguments can be passed to the CSV reader (CSV.jl)
-
     df = DataFrame(read_table("my_data.zip"); copycols=false) # zipped CSV format (assuming there is only 1 file in the archive)
 
 JSON Format:
 
-    using Dates
+    using Dates, JSONTables
     df = read_table("my_data.json") |> DataFrame # note that |> DataFrame(; copycols=false) gives wrong column types!
     df.my_date_col = Dates.(df.my_date_col) # Dates are imported as strings by default, need to be manually converted
 
@@ -73,19 +71,27 @@ JSON Format:
 
 Binary Formats:
 
+    using JDF
     df = DataFrame(read_table("my_data.jdf"); copycols=false) # JDF (compressed binary format)
+
+    using Parquet
     df = DataFrame(read_table("my_data.parquet"); copycols=false) # Parquet
+
+    using Arrow
     df = DataFrame(read_table("my_data.arrow"); copycols=false) # Apache Arrow
 
+    import Pandas # using gives a naming conflict
     df = DataFrame(read_table("my_data.hdf", "key"); copycols=false) # HDF5 (via Pandas)
 
 Excel:
 
+    using XLSX
     df = DataFrame(read_table("my_data.xlsx"); copycols=false) # imports 1st sheet
     df = DataFrame(read_table("my_data.xlsx", "MyAwesomeSheet"); copycols=false) # imports named sheet
 
 SQLite:
 
+    using SQLite
     df = DataFrame(read_table("my_data.db", "my_table"); copycols=false) # SQLite from file, table name must be given
 
 Alternatively, SQLite database objects could be used:
@@ -102,6 +108,7 @@ PostgreSQL:
 
 StatFiles.jl integration:
 
+    using StatFiles
     df = DataFrame(read_table("my_data.dta"); copycols=false) # Stata
     df = DataFrame(read_table("my_data.sav"); copycols=false) # SPSS
     df = DataFrame(read_table("my_data.sas7bdat"); copycols=false) # SAS
@@ -122,12 +129,14 @@ writes a Table.jl compatible data source into a file or databse.
 
 CSV Format:
 
+    using CSV
     write_table!("my_data.csv", df)
 
     write_table!("my_data.zip", df) # zipped CSV. If no "inner" file name is given, the table is always stored in csv format with the same file name as the zip archive
 
 JSON Format:
 
+    using JSONTables
     write_table!("my_data.json", df) # dictionary of arrays
     write_table!("my_data.json", df, orientation=:objecttable) # dictionary of arrays
     write_table!("my_data.json", df, orientation=:arraytable) # array of dictionaries
@@ -136,10 +145,16 @@ JSON Format:
 
 Binary Formats:
 
+    using JDF
     write_table!("my_data.jdf", df) # JDF (compressed binary format)
+
+    using Parquet
     write_table!("my_data.parquet", df) # Parquet - note that Date element type is not supported yet
+
+    using Arrow
     write_table!("my_data.arrow", df) # Apache Arrow
 
+    import Pandas # using gives a naming conflict
     write_table!("my_data.hdf", "key", df) # HDF5 (via Pandas)
 
 Excel:
@@ -148,9 +163,9 @@ Excel:
 
 SQLite:
 
+    using SQLite
     write_table!("my_data.db", "my_table", df) # SQLite from file, table must not exist
 
-    using SQLite
     sqlite_db = SQLite.DB("my_data.db")
     write_table!(sqlite_db, "my_table", df) # SQLite from database connection
 

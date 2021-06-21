@@ -50,19 +50,7 @@ Example:
 """
 function read_table(filename:: AbstractString, args...; kwargs...)
     data_type = get_file_type(filename)
-    try
-        # to speed up the standard case (format specific package is imported), this is tried first
-        return read_table(data_type, filename, args...; kwargs...)
-    catch ex
-        if ex isa MethodError
-            # import format specific package and invoke latest version of the function to avoid world age issues
-            _import_package(data_type)
-            return Base.invokelatest(read_table, data_type, filename, args...; kwargs...)
-        else
-            rethrow()
-        end
-    end
-    
+    return read_table(data_type, filename, args...; kwargs...)
 end
 
 """
@@ -83,8 +71,6 @@ function read_table(file_picker:: Dict, args...; kwargs...)
     data_type = get_file_type(filename)
     data_buffer = IOBuffer(data)
 
-    _import_package(data_type)
-
     if supports_io_input(data_type)
         data_object = data_buffer # if it is supported by the corresponding package, creation of a temporary file is avoided and the IOBuffer is used directly
     else
@@ -93,18 +79,7 @@ function read_table(file_picker:: Dict, args...; kwargs...)
         data_object = tmp_file
     end  
 
-    try
-        # to speed up the standard case (format specific package is imported), this is tried first
-        read_table(data_type, data_object, args...; kwargs...)
-    catch ex
-        if ex isa MethodError
-            # import format specific package and invoke latest version of the function to avoid world age issues
-            _import_package(data_type)
-            return Base.invokelatest(read_table, data_type, data_object, args...; kwargs...)
-        else
-            rethrow()
-        end
-    end
+    return read_table(data_type, data_object, args...; kwargs...)
 end
 
 """
@@ -115,19 +90,7 @@ Returns a list of all tables inside a file.
 function list_tables(filename:: AbstractString)
     data_type = get_file_type(filename)
     TableIOInterface.multiple_tables(data_type) || error("The data type $data_type does not support multiple tables per file.")
-    try
-        # to speed up the standard case (format specific package is imported), this is tried first
-        return list_tables(data_type, filename)
-    catch ex
-        if ex isa MethodError
-            # import format specific package and invoke latest version of the function to avoid world age issues
-            _import_package(data_type)
-            return Base.invokelatest(list_tables, data_type, filename)
-        else
-            rethrow()
-        end
-    end
-    
+    return list_tables(data_type, filename)
 end
 
 """
@@ -144,18 +107,7 @@ Example:
 """
 function write_table!(filename:: AbstractString, table, args...; kwargs...)
     data_type = get_file_type(filename)
-    try
-        # to speed up the standard case (format specific package is imported), this is tried first
-        write_table!(data_type, filename, table, args...; kwargs...)
-    catch ex
-        if ex isa MethodError
-            # import format specific package and invoke latest version of the function to avoid world age issues
-            _import_package(data_type)
-            return Base.invokelatest(write_table!, data_type, filename, table, args...; kwargs...)
-        else
-            rethrow()
-        end
-    end
+    write_table!(data_type, filename, table, args...; kwargs...)
     nothing
 end
 
@@ -191,23 +143,6 @@ end
 
 get_package_requirements(::T) where {T <: TableIOInterface.AbstractFormat} = PACKAGE_REQUIREMENTS[T]
 get_package_requirements(filename:: AbstractString) = get_package_requirements(get_file_type(filename))
-
-function _import_package(t::T) where {T <: TableIOInterface.AbstractFormat}
-    pkg_name = get_package_requirements(t)
-    _import_package(pkg_name)
-end
-
-function _import_package(pkg_names:: Vector{Symbol})
-    for pkg_name ∈ pkg_names
-        _import_package(pkg_name)
-    end
-end
-
-function _import_package(pkg_name:: Symbol)
-    @eval import $pkg_name    
-    # note that it is required to use Base.invokelatest for calling any functionality depending on the imported package, unless one returns to global scope before.
-end
-
 
 _checktable(table) = Tables.istable(typeof(table)) || error("table has no Tables.jl compatible interface")
 

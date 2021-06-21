@@ -1,9 +1,7 @@
-using SQLite
-using LibPQ
-
 @testset "Database IO" begin
         
     @testset "SQLite" begin
+        using SQLite
         fname = joinpath(testpath, "test.db")
         db = SQLite.DB(fname)
 
@@ -28,6 +26,7 @@ using LibPQ
     @testset "PostgreSQL" begin
         # the following tests require a running PostgreSQL database.
         # `docker run --rm --detach --name test-libpqjl -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 postgres`
+        using LibPQ
         conn = LibPQ.Connection("dbname=postgres user=postgres")
 
         execute(conn, """CREATE TEMPORARY TABLE test1 (
