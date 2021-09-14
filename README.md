@@ -36,7 +36,7 @@ For installation of the Python requirements for Pandas HDF5 use the following Ju
 ## Installation
 
     using Pkg
-    pkg"add https://github.com/lungben/TableIO.jl"
+    Pkg.add("TableIO")
     using TableIO
 
 Before using a specific format, the corresponding package needs to be installed:
