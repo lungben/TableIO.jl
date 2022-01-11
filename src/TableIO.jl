@@ -147,7 +147,7 @@ get_package_requirements(filename:: AbstractString) = get_package_requirements(g
 _checktable(table) = Tables.istable(typeof(table)) || error("table has no Tables.jl compatible interface")
 
 # poor man's approach to prevent SQL injections / garbage inputs
-_checktablename(tablename) = match(r"^[a-zA-Z0-9_]*$", tablename) === nothing && error("tablename must only contain alphanumeric characters and underscores")
+_checktablename(tablename) = match(r"^[a-zA-Z0-9_.]*$", tablename) === nothing && error("tablename must only contain alphanumeric characters and underscores")
 
 function _get_file_picker_data(file_picker:: Dict)
     data = file_picker["data"]:: Vector{UInt8} # brings back type stability

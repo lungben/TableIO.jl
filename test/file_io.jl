@@ -173,8 +173,11 @@
         name2 = joinpath(testpath, "testx.jdf")
         name3 = joinpath(testpath, "testx.xlsx")
         write_table!(name2, read_table(name1))
-        write_table!(name3, "my_sheet", DataFrame(read_table(name2)))
-        df_recovered = DataFrame(read_table(name3); copycols=false)
+        df_intermediate = DataFrame(read_table(name2))
+        df_intermediate.c = string.(df_intermediate.c) # XLSX.jl only supports plain string type
+        df_intermediate.f = string.(df_intermediate.f) 
+        write_table!(name3, "my_sheet", df_intermediate)
+        df_recovered = DataFrame(read_table(name3); copycols=true)
         @test df == df_recovered
 
         # SQLite from JDF
