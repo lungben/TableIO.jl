@@ -21,6 +21,10 @@ nt = [(a=1, b=0.5, c="hello"), (a=2, b=0.9, c="world"), (a=3, b=5.5, c="!")]
 
 @testset "TableIO.jl" begin
 
+    @test TableIO._checktablename("foo") == false # valid names do not throw an error
+    @test TableIO._checktablename("bar.foo") == false
+    @test_throws ErrorException TableIO._checktablename("Robert'); DROP TABLE students; --") == false # https://xkcd.com/327/
+
     include("file_io.jl")
     include("database_io.jl")
     include("plutoui_file_picker.jl")
