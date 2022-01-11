@@ -1,6 +1,6 @@
 @testset "PlutoUI" begin
 
-    df = DataFrame(a=1:10, b=rand(10), c="hello".* string.(1:10), d=Bool.((1:10) .% 2), e=Date("2020-08-15") .+ Day.(1:10), f="world!" .* string.(1:10))
+    df = DataFrame(a=1:10, b=0.1:0.1:1, c="hello".* string.(1:10), d=Bool.((1:10) .% 2), e=Date("2020-08-15") .+ Day.(1:10), f="world!" .* string.(1:10))
 
     empty_file_picker = Dict{Any, Any}("name" => "", "data" => UInt8[], "type" => "")
     @test_throws ErrorException read_table(empty_file_picker)
