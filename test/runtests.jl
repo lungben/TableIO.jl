@@ -1,4 +1,3 @@
-using Base: UV_EAI_SERVICE
 using TableIO
 using Test
 using DataFrames

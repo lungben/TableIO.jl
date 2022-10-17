@@ -74,6 +74,6 @@ function list_tables(::TableIOInterface.SQLiteFormat, filename:: AbstractString)
 end
 
 function list_tables(db:: SQLite.DB)
-    files = SQLite.tables(db).name
+    files = getfield.(SQLite.tables(db), :name)
     return files |> sort
 end
