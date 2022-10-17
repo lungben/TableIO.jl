@@ -19,5 +19,7 @@ XLSX = "fdbf4ff8-1666-58a4-91e7-1b58723a45e0"
 ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
 
 [compat]
-JDF = "0.4"
+JDF = "0.5"
 Parquet = "0.8"
+ZipFile = "0.10"
+SQLite = "1"

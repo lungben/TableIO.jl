@@ -4,7 +4,6 @@
 @info "ZipFile.jl is available - including functionality to read / write zipped files"
 
 using .ZipFile
-using CSV
 
 function read_table(t::TableIOInterface.ZippedFormat, zip_filename:: AbstractString; kwargs...)
     zf = ZipFile.Reader(zip_filename)
